@@ -9,6 +9,8 @@ on:
 jobs:
   backend-tests:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
     steps:
       - name: دریافت کد
         uses: actions/checkout@v4
