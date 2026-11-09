@@ -104,7 +104,45 @@ function render(){
  updateInspector();persist();
 }
 function terminalByKey(key){if(key.startsWith("J:")){const j=(circuit.junctions||[]).find(x=>x.id===key.slice(2));return j?{x:j.x,y:j.y}:null}const [id,indexText]=key.split(":");const c=findComponent(id);return c?terminalPoint(c,Number(indexText)):null}
-function wirePoints(w,index){const a=terminalByKey(w.a),b=terminalByKey(w.b);if(!a||!b)return null;const routeY=Math.min(a.y,b.y)-48-(index%3)*18;return [a,{x:a.x,y:routeY},{x:b.x,y:routeY},b]}
+function wirePoints(w,index){
+ const a=terminalByKey(w.a),b=terminalByKey(w.b);if(!a||!b)return null;
+ const step=12,cols=76,rows=42,inside=(x,y)=>x>=0&&y>=0&&x<cols&&y<rows;
+ const sx=Math.round(a.x/step),sy=Math.round(a.y/step),tx=Math.round(b.x/step),ty=Math.round(b.y/step);
+ const start=sy*cols+sx,goal=ty*cols+tx;
+ const sourceId=w.a.startsWith("J:")?null:w.a.split(":")[0],targetId=w.b.startsWith("J:")?null:w.b.split(":")[0];
+ const blocked=new Set();
+ for(const c of circuit.components){if(c.id===sourceId||c.id===targetId)continue;
+  const minX=Math.floor((c.x-42)/step),maxX=Math.ceil((c.x+42)/step),minY=Math.floor((c.y-42)/step),maxY=Math.ceil((c.y+42)/step);
+  for(let y=minY;y<=maxY;y++)for(let x=minX;x<=maxX;x++)if(inside(x,y))blocked.add(y*cols+x);
+ }
+ blocked.delete(start);blocked.delete(goal);
+ const occupied=[];
+ for(let i=0;i<index;i++){const prior=wirePoints(circuit.wires[i],i);if(prior)for(let k=0;k<prior.length-1;k++)occupied.push([prior[k],prior[k+1]])}
+ const distanceToSegment=(p,u,v)=>{const dx=v.x-u.x,dy=v.y-u.y,l=dx*dx+dy*dy;if(!l)return Math.hypot(p.x-u.x,p.y-u.y);const t=Math.max(0,Math.min(1,((p.x-u.x)*dx+(p.y-u.y)*dy)/l));return Math.hypot(p.x-u.x-t*dx,p.y-u.y-t*dy)};
+ const heap=[],push=(item)=>{heap.push(item);let i=heap.length-1;while(i){const p=(i-1)>>1;if(heap[p].f<=item.f)break;heap[i]=heap[p];i=p}heap[i]=item};
+ const pop=()=>{const first=heap[0],last=heap.pop();if(heap.length){let i=0;while(true){let l=i*2+1,r=l+1;if(l>=heap.length)break;let c=r<heap.length&&heap[r].f<heap[l].f?r:l;if(heap[c].f>=last.f)break;heap[i]=heap[c];i=c}heap[i]=last}return first};
+ const g=new Map([[start,0]]),came=new Map(),closed=new Set();
+ const heuristic=(x,y)=>Math.abs(x-tx)+Math.abs(y-ty);
+ push({id:start,x:sx,y:sy,f:heuristic(sx,sy)});
+ let found=false,iterations=0;
+ while(heap.length&&iterations++<9000){
+  const cur=pop();if(closed.has(cur.id))continue;if(cur.id===goal){found=true;break}closed.add(cur.id);
+  for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+   const x=cur.x+dx,y=cur.y+dy;if(!inside(x,y))continue;const id=y*cols+x;if(blocked.has(id)||closed.has(id))continue;
+   const p={x:x*step,y:y*step};let penalty=0;
+   for(const [u,v] of occupied){const d=distanceToSegment(p,u,v);if(d<9){penalty+=d<3?18:5}}
+   const next=g.get(cur.id)+1+penalty;if(next<(g.get(id)??Infinity)){g.set(id,next);came.set(id,cur.id);push({id,x,y,f:next+heuristic(x,y)})}
+  }
+ }
+ if(!found)return [a,{x:a.x,y:b.y},b];
+ const ids=[goal];while(ids[ids.length-1]!==start){const prev=came.get(ids[ids.length-1]);if(prev===undefined)break;ids.push(prev)}ids.reverse();
+ const points=[a];let lastDir=null;
+ for(let i=1;i<ids.length-1;i++){const prev=ids[i-1],cur=ids[i],next=ids[i+1],dir=[Math.sign(cur%cols-prev%cols),Math.sign(Math.floor(cur/cols)-Math.floor(prev/cols))].join(",");
+  const nextDir=[Math.sign(next%cols-cur%cols),Math.sign(Math.floor(next/cols)-Math.floor(cur/cols))].join(",");
+  if(dir!==nextDir)points.push({x:(cur%cols)*step,y:Math.floor(cur/cols)*step});
+ }
+ points.push(b);return points;
+}
 function wirePath(points){return points.map((p,i)=>(i?"L":"M")+p.x+" "+p.y).join(" ")}
 function nextJunctionId(){let n=1;while((circuit.junctions||[]).some(j=>j.id==="J"+n))n++;return "J"+n}
 function snapPoint(p){return {x:Math.max(24,Math.min(876,Math.round(p.x/24)*24)),y:Math.max(24,Math.min(476,Math.round(p.y/24)*24))}}
