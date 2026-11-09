@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102b46">
+  <title>ElectroLab AI | آزمایشگاه الکترونیک</title>
+  <style>
+    :root{color-scheme:dark;--bg:#081522;--panel:#10263a;--line:#24435d;--muted:#a8bdcf;--cyan:#49c6d8;--green:#4bd39a}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0,#153956 0,transparent 45%),var(--bg);color:#eef7ff;font-family:Tahoma,Arial,sans-serif;line-height:1.8}
+    .wrap{max-width:1080px;margin:auto;padding:32px 20px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+    .brand{font-weight:800;font-size:20px;letter-spacing:.3px}.tag{border:1px solid #286078;color:#8ee9f2;border-radius:999px;padding:4px 12px;font-size:12px}
+    .hero{padding:64px 0 42px}.hero h1{font-size:clamp(30px,5vw,52px);line-height:1.35;margin:10px 0}.hero p{color:var(--muted);max-width:720px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.card{background:linear-gradient(145deg,#132d44,#0d2032);border:1px solid var(--line);border-radius:16px;padding:20px}
+    .card h2{font-size:17px;margin:0 0 8px}.card p,.muted{color:var(--muted);font-size:14px;margin:0}.icon{font-size:25px;margin-bottom:8px}
+    .section{margin-top:34px}.section h2{font-size:21px}.status{display:inline-flex;align-items:center;gap:7px;color:var(--green);font-size:13px}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block}
+    a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}.links{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px}
+    code{direction:ltr;display:inline-block;background:#07131f;border:1px solid var(--line);border-radius:7px;padding:2px 8px;color:#a7e6ef}
+    footer{border-top:1px solid var(--line);margin-top:46px;padding-top:20px;color:var(--muted);font-size:12px}
+    .notice{border-right:3px solid #e6b95b;background:#2a2519;padding:14px 16px;border-radius:8px;color:#f6e5bd;font-size:13px}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top"><div class="brand">⚡ ElectroLab AI</div><span class="tag">نسخه نمایشی · MVP 0.1.0</span></header>
+  <section class="hero">
+    <span class="status"><i class="dot"></i> صفحه آزمایشی فعال است</span>
+    <h1>آزمایشگاه یکپارچه<br>شبیه‌سازی و تست الکترونیک</h1>
+    <p>محیطی برای مدیریت پروژه‌های الکترونیکی، بررسی سناریوهای تست، شبیه‌سازی مدار و اعتبارسنجی بردهای واقعی. این صفحه، پوسته نمایشی اولیه پروژه است.</p>
+    <div class="links">
+      <a href="https://github.com/mydsoftware/ElectroLab-AI">مخزن GitHub ↗</a>
+      <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/ARCHITECTURE.fa.md">معماری فنی ↗</a>
+      <a href="https://github.com/mydsoftware/ElectroLab-AI/tree/main/backend">کد Backend ↗</a>
+    </div>
+  </section>
+  <section class="grid">
+    <article class="card"><div class="icon">🧩</div><h2>مدیریت بردها</h2><p>پروفایل بردها و خانواده‌های میکروکنترلر؛ Arduino، ESP32 و STM32.</p></article>
+    <article class="card"><div class="icon">〰️</div><h2>شبیه‌سازی مدار</h2><p>زیرساخت اتصال به ngspice و موتورهای شبیه‌سازی دیگر.</p></article>
+    <article class="card"><div class="icon">🧪</div><h2>سناریوهای تست</h2><p>تعریف مقدار مرجع، تلورانس و ارزیابی نتایج به‌صورت PASS / FAIL.</p></article>
+    <article class="card"><div class="icon">🔌</div><h2>تست سخت‌افزار</h2><p>برنامه توسعه اتصال ایمن به برد واقعی و تجهیزات اندازه‌گیری.</p></article>
+  </section>
+  <section class="section">
+    <h2>وضعیت قابلیت‌ها</h2>
+    <div class="grid">
+      <article class="card"><h2>هسته API</h2><p>در مخزن پیاده‌سازی شده؛ برای اجرا به سرور Python نیاز دارد.</p></article>
+      <article class="card"><h2>ارزیابی تست</h2><p>منطق اولیه محدوده مجاز در Backend موجود است.</p></article>
+      <article class="card"><h2>موتورهای شبیه‌سازی</h2><p>اتصال واقعی موتور در مراحل بعدی توسعه می‌یابد.</p></article>
+    </div>
+  </section>
+  <section class="section notice">
+    <strong>توجه:</strong> GitHub Pages فقط فایل‌های ایستا را میزبانی می‌کند. بنابراین این صفحه برای آزمایش رابط نمایشی است؛ API پایتون، شبیه‌سازی مدار و ارتباط با USB یا برد واقعی روی GitHub Pages اجرا نمی‌شوند و به Backend/Agent جداگانه نیاز دارند.
+  </section>
+  <footer>ElectroLab AI · Universal Electronics Simulation & Hardware Validation Platform</footer>
+</main>
+</body>
+</html>
