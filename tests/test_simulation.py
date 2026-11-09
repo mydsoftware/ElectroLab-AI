@@ -25,8 +25,8 @@ def test_rejects_unsupported_directives(directive):
 
 def test_requires_operating_point_and_end():
     with pytest.raises(ValueError):
-        validate_netlist("R1 a 0 1k\n.end")
+        validate_netlist("مدار\nR1 a 0 1k\n.end")
 
 def test_rejects_invalid_element_values():
     with pytest.raises(ValueError):
-        validate_netlist("R1 a 0 python\n.op\n.end")
+        validate_netlist("مدار\nR1 a 0 python\n.op\n.end")
