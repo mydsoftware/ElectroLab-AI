@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: دریافت کد
+        uses: actions/checkout@v4
+      - name: نصب Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: نصب وابستگی‌ها
+        run: pip install -r requirements-dev.txt
+      - name: اجرای تست‌ها
+        run: pytest -q
