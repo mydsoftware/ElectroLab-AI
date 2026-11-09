@@ -80,7 +80,11 @@ function drawSymbol(c){
 }
 function render(){
  const svg=$("circuit");let markup="";
- for(const w of circuit.wires){const a=terminalByKey(w.a),b=terminalByKey(w.b);if(a&&b)markup+='<path class="wireline" d="M'+a.x+' '+a.y+' L'+b.x+' '+b.y+'"/>'}
+ for(let i=0;i<circuit.wires.length;i++){
+  const w=circuit.wires[i],a=terminalByKey(w.a),b=terminalByKey(w.b);
+  if(a&&b){const routeY=Math.min(a.y,b.y)-48-(i%3)*18;
+   markup+='<path class="wireline" d="M'+a.x+' '+a.y+' L'+a.x+' '+routeY+' L'+b.x+' '+routeY+' L'+b.x+' '+b.y+'"/>'}
+ }
  for(const key of circuit.grounds){const p=terminalByKey(key);if(p)markup+='<path class="ground" d="M'+p.x+' '+p.y+' v14 m-13 0 h26 m-9 6 h18 m-5 6 h10"/>'}
  if(firstTerminal){const p=terminalByKey(firstTerminal);if(p)markup+='<circle cx="'+p.x+'" cy="'+p.y+'" r="13" fill="none" stroke="#f1c36d" stroke-width="2"/>'}
  for(const c of circuit.components)markup+=drawSymbol(c);
