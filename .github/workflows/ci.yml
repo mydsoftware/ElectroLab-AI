@@ -20,5 +20,7 @@ jobs:
           python-version: "3.12"
       - name: نصب وابستگی‌ها
         run: pip install -r requirements-dev.txt
-      - name: اجرای تست‌ها
+      - name: اجرای تست‌های Backend
         run: pytest -q
+      - name: بررسی نحو JavaScript رابط گرافیکی
+        run: python scripts/check_frontend.py
