@@ -48,10 +48,11 @@ a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);
  <div class="panel"><h2>ویژگی قطعه انتخاب‌شده</h2><p id="selectionHint" class="muted">یک قطعه را روی صفحه انتخاب کنید.</p><div id="inspector" hidden><label for="partName">شناسه قطعه</label><input id="partName" maxlength="12"><label for="partValue">مقدار قطعه</label><input id="partValue" maxlength="20"><div class="actions"><button id="applyPart">اعمال تغییرات</button></div></div></div>
  <div class="panel"><h2>اتصال Backend</h2><label for="apiBase">نشانی پایه API</label><input id="apiBase" type="url" placeholder="http://localhost:8000"><div class="actions"><button class="secondary" id="connectBtn">بررسی اتصال</button></div><p class="status" id="apiState">در انتظار بررسی</p><p class="status" id="engineState">ngspice: نامشخص</p></div>
  <div class="panel"><h2>آمار مدار</h2><div class="metric"><b id="partCount">۰</b><span>تعداد قطعات</span></div><div class="metric"><b id="wireCount">۰</b><span>تعداد اتصال‌ها</span></div><div class="metric"><b id="nodeCount">۰</b><span>تعداد گره‌های الکتریکی</span></div></div>
+ <div class="panel"><h2>اعتبارسنجی اتصالات</h2><p id="graphStatus" class="status">در انتظار بررسی مدار</p><ul id="graphIssues" class="muted" style="padding-right:18px;margin:6px 0"></ul></div>
  <div class="panel"><h2>راهنمای اتصال</h2><p class="muted">۱. یک قطعه به مدار اضافه کنید.</p><p class="muted">۲. «اتصال سیم» را بزنید و دو دایره ترمینال را انتخاب کنید.</p><p class="muted">۳. برای تعیین مرجع ولتاژ، «اتصال به زمین» را بزنید و یک ترمینال را انتخاب کنید.</p><p class="muted">۴. مقدار قطعه را انتخاب و ویرایش کنید؛ نت‌لیست خودکار ساخته می‌شود.</p></div>
 </aside>
 </section>
-<section class="notice"><b>محدودیت نسخه:</b> قطعات R/C/L/V/I، جابه‌جایی با ماوس یا لمس، چرخش ۹۰ درجه و بازگشت/انجام مجدد پشتیبانی می‌شوند. تحلیل PCB، مدل میکروکنترلر، تحلیل گذرا و کتابخانه قطعات پیشرفته هنوز در دست توسعه‌اند. نتیجه شبیه‌سازی به‌تنهایی تأیید ایمنی مدار نیست؛ برای برق شهر از این ابزار استفاده نکنید.</section>
+<section class="notice"><b>محدودیت نسخه:</b> قطعات R/C/L/V/I، جابه‌جایی، چرخش، بازگشت/انجام مجدد، نام‌گذاری گره‌ها و تشخیص اتصال کوتاه، پایه‌های آزاد و سیم‌های تکراری پشتیبانی می‌شوند. اتصال خودکار به میانه سیم، تحلیل PCB، مدل میکروکنترلر و تحلیل گذرا هنوز در دست توسعه‌اند. نتیجه شبیه‌سازی به‌تنهایی تأیید ایمنی مدار نیست؛ برای برق شهر از این ابزار استفاده نکنید.</section>
 <footer class="foot">ElectroLab AI · <a href="https://github.com/mydsoftware/ElectroLab-AI">مخزن GitHub</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/NGSPICE.fa.md">راهنمای Backend</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/ARCHITECTURE.fa.md">معماری</a></footer>
 </main>
 <script>
@@ -92,8 +93,13 @@ function render(){
  }
  for(const key of circuit.grounds){const p=terminalByKey(key);if(p)markup+='<path class="ground" d="M'+p.x+' '+p.y+' v14 m-13 0 h26 m-9 6 h18 m-5 6 h10"/>'}
  if(firstTerminal){const p=terminalByKey(firstTerminal);if(p)markup+='<circle cx="'+p.x+'" cy="'+p.y+'" r="13" fill="none" stroke="#f1c36d" stroke-width="2"/>'}
- for(const c of circuit.components)markup+=drawSymbol(c);
+ const graph=buildNodes();
+ for(const c of circuit.components){
+  for(let i=0;i<2;i++){const p=terminalPoint(c,i),node=graph.node(c.id+":"+i);markup+='<text x="'+(p.x+(i===0?-4:4))+'" y="'+(p.y-12)+'" text-anchor="'+(i===0?"end":"start")+'" fill="#9eb8ca" font-size="10">'+node+'</text>'}
+  markup+=drawSymbol(c);
+ }
  svg.innerHTML=markup;
+ updateGraphDiagnostics(graph);
  $("netlist").value=generateNetlist();
  $("partCount").textContent=circuit.components.length;
  $("wireCount").textContent=circuit.wires.length;
@@ -108,9 +114,29 @@ function buildNodes(){
  const join=(a,b)=>{if(parent.has(a)&&parent.has(b))parent.set(root(a),root(b))};
  circuit.wires.forEach(w=>join(w.a,w.b));
  const grounded=new Set(circuit.grounds.filter(k=>parent.has(k)).map(root));
- const roots=new Set(keys.map(root)),names=new Map();
+ const roots=new Set(keys.map(root)),names=new Map(),members=new Map();
  let n=1;for(const r of roots){if(grounded.has(r))names.set(r,"0");else names.set(r,"n"+n++)}
- return {root,names,roots,grounded,node:key=>names.get(root(key))||"0"};
+ for(const k of keys){const r=root(k);if(!members.has(r))members.set(r,[]);members.get(r).push(k)}
+ return {root,names,roots,grounded,members,node:key=>names.get(root(key))||"0"};
+}
+function analyzeCircuit(graph=buildNodes()){
+ const issues=[],degree=new Map();
+ for(const c of circuit.components){degree.set(c.id+":0",0);degree.set(c.id+":1",0)}
+ for(const w of circuit.wires){if(degree.has(w.a))degree.set(w.a,degree.get(w.a)+1);if(degree.has(w.b))degree.set(w.b,degree.get(w.b)+1)}
+ for(const c of circuit.components){
+  if(graph.root(c.id+":0")===graph.root(c.id+":1"))issues.push({level:"error",text:c.id+" اتصال کوتاه شده است؛ دو پایه قطعه در یک گره قرار دارند."});
+  for(let i=0;i<2;i++){const k=c.id+":"+i;if(degree.get(k)===0&&!circuit.grounds.includes(k))issues.push({level:"warning",text:k+" آزاد است و به سیم یا زمین متصل نیست."})}
+ }
+ const seen=new Set();for(const w of circuit.wires){const pair=[w.a,w.b].sort().join("|");if(seen.has(pair)){issues.push({level:"warning",text:"اتصال سیم تکراری در مدار وجود دارد."});break}seen.add(pair)}
+ if(circuit.components.length&&!circuit.grounds.length)issues.push({level:"warning",text:"هیچ گره مرجعی به زمین (۰) متصل نشده است."});
+ return issues;
+}
+function updateGraphDiagnostics(graph){
+ const issues=analyzeCircuit(graph),el=$("graphIssues"),status=$("graphStatus");
+ el.innerHTML=issues.length?issues.map(x=>'<li class="'+(x.level==="error"?"bad":"warn")+'">'+escapeXml(x.text)+'</li>').join(""):"<li class='ok'>اتصالات پایه‌ای بدون خطای شناسایی‌شده هستند.</li>";
+ const errors=issues.filter(x=>x.level==="error").length,warnings=issues.length-errors;
+ status.textContent=errors?errors+" خطای اتصال · "+warnings+" هشدار":warnings?warnings+" هشدار · خطای کوتاه شناسایی نشد":"ساختار گره‌ها معتبر است";
+ status.className="status "+(errors?"bad":warnings?"warn":"ok");
 }
 function generateNetlist(){
  if(!circuit.components.length)return "* ElectroLab AI - empty circuit\n.op\n.end";
@@ -150,8 +176,12 @@ function onTerminal(key){
  if(!firstTerminal){firstTerminal=key;$("editorState").textContent="ترمینال اول انتخاب شد؛ ترمینال دوم را بزنید";render();return}
  if(firstTerminal===key){firstTerminal=null;render();return}
  const duplicate=circuit.wires.some(w=>(w.a===firstTerminal&&w.b===key)||(w.a===key&&w.b===firstTerminal));
- if(!duplicate)circuit.wires.push({a:firstTerminal,b:key});
- firstTerminal=null;$("editorState").textContent=duplicate?"این اتصال از قبل وجود دارد":"سیم جدید اضافه شد";render();
+ const graph=buildNodes(),sameNode=graph.root(firstTerminal)===graph.root(key);
+ const samePart=firstTerminal.split(":")[0]===key.split(":")[0];
+ if(duplicate||sameNode){firstTerminal=null;$("editorState").textContent=duplicate?"این سیم قبلاً رسم شده است":"این دو ترمینال از قبل در یک گره الکتریکی هستند";render();return}
+ if(samePart){firstTerminal=null;$("editorState").textContent="اتصال رد شد: این سیم دو پایه همان قطعه را اتصال کوتاه می‌کند";render();return}
+ circuit.wires.push({a:firstTerminal,b:key});
+ firstTerminal=null;$("editorState").textContent="سیم هوشمند اضافه شد؛ گره‌ها دوباره محاسبه شدند";render();
 }
 $("circuit").addEventListener("click",e=>{
  const terminal=e.target.closest("[data-terminal]");
