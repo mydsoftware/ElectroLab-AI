@@ -24,3 +24,9 @@ jobs:
         run: pytest -q
       - name: بررسی نحو JavaScript رابط گرافیکی
         run: python scripts/check_frontend.py
+      - name: نصب Node.js برای تست‌های هندسی
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: اجرای تست‌های مسیریابی سیم
+        run: node --test tests/frontend/*.test.cjs
