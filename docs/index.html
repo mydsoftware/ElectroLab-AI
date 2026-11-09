@@ -35,7 +35,7 @@ a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);
   <button data-add="R">＋ مقاومت R</button><button data-add="C" class="secondary">＋ خازن C</button><button data-add="L" class="secondary">＋ سلف L</button><button data-add="V" class="secondary">＋ منبع ولتاژ</button><button data-add="I" class="secondary">＋ منبع جریان</button>
  </div>
  <div class="actions" style="margin:0 0 10px">
-  <button id="wireMode" class="secondary">اتصال سیم</button><button id="groundMode" class="secondary">اتصال به زمین</button><button id="deletePart" class="danger">حذف قطعه انتخابی</button><button id="clearCircuit" class="secondary">مدار جدید</button><button id="sampleCircuit" class="secondary">مدار نمونه</button>
+  <button id="wireMode" class="secondary">اتصال سیم</button><button id="groundMode" class="secondary">اتصال به زمین</button><button id="deletePart" class="danger">حذف قطعه انتخابی</button><button id="rotatePart" class="secondary">چرخش ۹۰°</button><button id="undoBtn" class="secondary" disabled>بازگشت</button><button id="redoBtn" class="secondary" disabled>انجام مجدد</button><button id="clearCircuit" class="secondary">مدار جدید</button><button id="sampleCircuit" class="secondary">مدار نمونه</button>
  </div>
  <div class="canvas"><svg id="circuit" viewBox="0 0 900 500" role="img" aria-label="محیط گرافیکی طراحی مدار"></svg></div>
  <p class="status" id="modeHelp">برای انتخاب قطعه روی آن بزنید. برای اتصال، حالت «اتصال سیم» را فعال و دو ترمینال را انتخاب کنید.</p>
@@ -51,7 +51,7 @@ a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);
  <div class="panel"><h2>راهنمای اتصال</h2><p class="muted">۱. یک قطعه به مدار اضافه کنید.</p><p class="muted">۲. «اتصال سیم» را بزنید و دو دایره ترمینال را انتخاب کنید.</p><p class="muted">۳. برای تعیین مرجع ولتاژ، «اتصال به زمین» را بزنید و یک ترمینال را انتخاب کنید.</p><p class="muted">۴. مقدار قطعه را انتخاب و ویرایش کنید؛ نت‌لیست خودکار ساخته می‌شود.</p></div>
 </aside>
 </section>
-<section class="notice"><b>محدودیت نسخه:</b> قطعات R/C/L/V/I و تحلیل نقطه‌کار DC پشتیبانی می‌شوند. این نسخه هنوز ابزار PCB، مدل میکروکنترلر، تحلیل گذرا، جابه‌جایی آزاد قطعات و کتابخانه قطعات پیشرفته ندارد. نتیجه شبیه‌سازی به‌تنهایی تأیید ایمنی مدار نیست؛ برای برق شهر از این ابزار استفاده نکنید.</section>
+<section class="notice"><b>محدودیت نسخه:</b> قطعات R/C/L/V/I، جابه‌جایی با ماوس یا لمس، چرخش ۹۰ درجه و بازگشت/انجام مجدد پشتیبانی می‌شوند. تحلیل PCB، مدل میکروکنترلر، تحلیل گذرا و کتابخانه قطعات پیشرفته هنوز در دست توسعه‌اند. نتیجه شبیه‌سازی به‌تنهایی تأیید ایمنی مدار نیست؛ برای برق شهر از این ابزار استفاده نکنید.</section>
 <footer class="foot">ElectroLab AI · <a href="https://github.com/mydsoftware/ElectroLab-AI">مخزن GitHub</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/NGSPICE.fa.md">راهنمای Backend</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/ARCHITECTURE.fa.md">معماری</a></footer>
 </main>
 <script>
@@ -62,23 +62,28 @@ const defaultCircuit={components:[
 {id:"R1",type:"R",value:"1k",x:510,y:220}
 ],wires:[{a:"V1:0",b:"R1:0"},{a:"R1:1",b:"V1:1"}],grounds:["V1:1"]};
 let circuit=structuredClone(defaultCircuit),selected=null,mode="select",firstTerminal=null;
+let undoStack=[],redoStack=[],lastSnapshot=JSON.stringify(circuit),restoringHistory=false,dragState=null;
 const defaults={R:"1k",C:"10u",L:"10m",V:"5",I:"1m"};
 const typeNames={R:"مقاومت",C:"خازن",L:"سلف",V:"منبع ولتاژ",I:"منبع جریان"};
-function terminalPoint(c,index){return {x:c.x+(index===0?-58:58),y:c.y}}
+function terminalPoint(c,index){const a=(c.rotation||0)*Math.PI/180,dx=index===0?-58:58;return {x:c.x+Math.cos(a)*dx,y:c.y+Math.sin(a)*dx}}
 function escapeXml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function findComponent(id){return circuit.components.find(c=>c.id===id)}
 function nextId(type){let n=1;while(findComponent(type+n))n++;return type+n}
 function drawSymbol(c){
- const x=c.x,y=c.y;
+ const x=c.x,y=c.y,rotation=c.rotation||0;
  let symbol="";
  if(c.type==="R")symbol='<path class="part" d="M-28 0 l9 -13 12 26 12 -26 12 26 12 -26 9 13"/>';
  if(c.type==="C")symbol='<path class="part" d="M-10 -23 V23 M10 -23 V23"/>';
  if(c.type==="L")symbol='<path class="part" d="M-28 0 a10 15 0 0 1 20 0 a10 15 0 0 1 20 0 a10 15 0 0 1 20 0"/>';
  if(c.type==="V")symbol='<circle class="part" cx="0" cy="0" r="25"/><path class="part" d="M-10 0 H10 M0 -10 V10"/>';
  if(c.type==="I")symbol='<circle class="part" cx="0" cy="0" r="25"/><path class="part" d="M0 13 V-13 M-7 -5 L0 -13 L7 -5"/>';
- return '<g class="'+(selected===c.id?"selected":"")+'" data-part="'+escapeXml(c.id)+'"><path class="wire" d="M-58 0 H-28 M28 0 H58" transform="translate('+x+' '+y+')"/><g transform="translate('+x+' '+y+')">'+symbol+'</g><text class="part-label" x="'+x+'" y="'+(y-42)+'" text-anchor="middle">'+escapeXml(c.id)+'</text><text class="part-value" x="'+x+'" y="'+(y+48)+'" text-anchor="middle">'+escapeXml(c.value)+'</text><circle class="terminal" data-terminal="'+escapeXml(c.id)+':0" cx="'+(x-58)+'" cy="'+y+'" r="7"/><circle class="terminal" data-terminal="'+escapeXml(c.id)+':1" cx="'+(x+58)+'" cy="'+y+'" r="7"/></g>';
+ const a=terminalPoint(c,0),b=terminalPoint(c,1);
+ return '<g class="'+(selected===c.id?"selected":"")+'" data-part="'+escapeXml(c.id)+'"><g transform="translate('+x+' '+y+') rotate('+rotation+')"><path class="wire" d="M-58 0 H-28 M28 0 H58"/>'+symbol+'</g><text class="part-label" x="'+x+'" y="'+(y-42)+'" text-anchor="middle">'+escapeXml(c.id)+'</text><text class="part-value" x="'+x+'" y="'+(y+48)+'" text-anchor="middle">'+escapeXml(c.value)+'</text><circle class="terminal" data-terminal="'+escapeXml(c.id)+':0" cx="'+a.x+'" cy="'+a.y+'" r="7"/><circle class="terminal" data-terminal="'+escapeXml(c.id)+':1" cx="'+b.x+'" cy="'+b.y+'" r="7"/></g>';
 }
 function render(){
+ const snapshot=JSON.stringify(circuit);
+ if(!restoringHistory&&snapshot!==lastSnapshot){undoStack.push(lastSnapshot);if(undoStack.length>40)undoStack.shift();redoStack=[];lastSnapshot=snapshot}
+ $("undoBtn").disabled=undoStack.length===0;$("redoBtn").disabled=redoStack.length===0;
  const svg=$("circuit");let markup="";
  for(let i=0;i<circuit.wires.length;i++){
   const w=circuit.wires[i],a=terminalByKey(w.a),b=terminalByKey(w.b);
@@ -174,6 +179,53 @@ $("deletePart").addEventListener("click",()=>{
 });
 $("clearCircuit").addEventListener("click",()=>{circuit={components:[],wires:[],grounds:[]};selected=null;render();$("editorState").textContent="مدار خالی ایجاد شد"});
 $("sampleCircuit").addEventListener("click",()=>{circuit=structuredClone(defaultCircuit);selected=null;mode="select";render();$("editorState").textContent="مدار نمونه بارگذاری شد";$("wireMode").classList.remove("active");$("groundMode").classList.remove("active")});
+function restoreHistory(from,to){
+ if(!from.length)return;
+ const current=JSON.stringify(circuit),target=from.pop();to.push(current);
+ circuit=JSON.parse(target);lastSnapshot=JSON.stringify(circuit);restoringHistory=true;render();restoringHistory=false;
+}
+$("undoBtn").addEventListener("click",()=>restoreHistory(undoStack,redoStack));
+$("redoBtn").addEventListener("click",()=>restoreHistory(redoStack,undoStack));
+$("rotatePart").addEventListener("click",()=>{
+ const c=findComponent(selected);if(!c)return;
+ c.rotation=((c.rotation||0)+90)%360;render();
+});
+document.addEventListener("keydown",e=>{
+ const tag=(e.target&&e.target.tagName||"").toLowerCase();
+ if(tag==="input"||tag==="textarea"||tag==="select")return;
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){e.preventDefault();restoreHistory(undoStack,redoStack)}
+ else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="y"){e.preventDefault();restoreHistory(redoStack,undoStack)}
+ else if(e.key.toLowerCase()==="r"&&selected){const c=findComponent(selected);if(c){c.rotation=((c.rotation||0)+90)%360;render()}}
+});
+const svgCanvas=$("circuit");
+svgCanvas.addEventListener("pointerdown",e=>{
+ if(mode!=="select")return;
+ const part=e.target.closest("[data-part]");if(!part)return;
+ const c=findComponent(part.dataset.part);if(!c)return;
+ selected=c.id;
+ dragState={id:c.id,startX:c.x,startY:c.y,startSnapshot:JSON.stringify(circuit),moved:false,pointerX:e.clientX,pointerY:e.clientY};
+});
+window.addEventListener("pointermove",e=>{
+ if(!dragState)return;
+ const c=findComponent(dragState.id);if(!c)return;
+ const rect=svgCanvas.getBoundingClientRect(),scaleX=900/rect.width,scaleY=500/rect.height;
+ const dx=(e.clientX-dragState.pointerX)*scaleX,dy=(e.clientY-dragState.pointerY)*scaleY;
+ if(Math.abs(dx)+Math.abs(dy)<3)return;
+ dragState.moved=true;
+ c.x=Math.max(72,Math.min(828,Math.round((dragState.startX+dx)/24)*24));
+ c.y=Math.max(72,Math.min(452,Math.round((dragState.startY+dy)/24)*24));
+ restoringHistory=true;render();restoringHistory=false;
+});
+window.addEventListener("pointerup",()=>{
+ if(!dragState)return;
+ if(dragState.moved){
+  undoStack.push(dragState.startSnapshot);if(undoStack.length>40)undoStack.shift();
+  redoStack=[];lastSnapshot=JSON.stringify(circuit);
+  $("undoBtn").disabled=false;$("redoBtn").disabled=true;
+ }
+ dragState=null;
+});
+
 $("copyNetlist").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("netlist").value);$("editorState").textContent="نت‌لیست کپی شد"}catch(e){$("netlist").select();document.execCommand("copy")}});
 $("downloadNetlist").addEventListener("click",()=>download("electrolab-circuit.cir",$("netlist").value,"text/plain"));
 $("exportProject").addEventListener("click",()=>download("electrolab-project.json",JSON.stringify(circuit,null,2),"application/json"));
