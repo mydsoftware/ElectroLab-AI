@@ -1,10 +1,7 @@
-"""مدل‌های داده استاندارد ElectroLab AI."""
-
+"""Models."""
 from enum import Enum
 from typing import Any
-
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel, Field, field_validator
 
 class TestStatus(str, Enum):
     passed = "PASS"
@@ -12,12 +9,10 @@ class TestStatus(str, Enum):
     error = "ERROR"
     skipped = "SKIPPED"
 
-
 class Measurement(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     value: float
     unit: str = Field(default="", max_length=24)
-
 
 class TestScenario(BaseModel):
     test_id: str = Field(min_length=1, max_length=80)
@@ -26,7 +21,6 @@ class TestScenario(BaseModel):
     expected: float
     tolerance: float = Field(default=0, ge=0)
     unit: str = Field(default="", max_length=24)
-
 
 class TestEvaluation(BaseModel):
     test_id: str
@@ -37,7 +31,6 @@ class TestEvaluation(BaseModel):
     unit: str
     message: str
 
-
 class BoardProfile(BaseModel):
     board_id: str
     name: str
@@ -46,13 +39,29 @@ class BoardProfile(BaseModel):
     hardware_test_support: str
     notes: str = ""
 
-
 class SimulationEngineStatus(BaseModel):
     engine: str
     available: bool
     version: str | None = None
     details: str
 
+class SimulationRequest(BaseModel):
+    netlist: str = Field(min_length=1, max_length=20000)
+    timeout_seconds: int = Field(default=10, ge=1, le=20)
+
+    @field_validator("netlist")
+    @classmethod
+    def netlist_must_not_be_empty(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("متن مدار خالی است.")
+        return value
+
+class SimulationResult(BaseModel):
+    engine: str
+    status: str
+    output: str
+    elapsed_ms: int
+    message: str
 
 class ProjectCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
