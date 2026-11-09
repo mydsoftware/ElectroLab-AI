@@ -160,7 +160,7 @@ $("groundMode").addEventListener("click",()=>setMode("ground"));
 $("applyPart").addEventListener("click",()=>{
  const c=findComponent(selected);if(!c)return;
  const id=$("partName").value.trim(),value=$("partValue").value.trim();
- if(!/^[RCLVI][A-Za-z0-9_]{0,10}$/.test(id)){alert("شناسه باید با حرف نوع قطعه شروع شود.");return}
+ if(!/^[RCLVI][A-Za-z0-9_]{0,10}$/.test(id)||id[0]!==c.type){alert("شناسه باید با نوع قطعه هماهنگ باشد؛ مثلاً R2 برای مقاومت.");return}
  if(!/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?[TGMKUNPFmunpf]?$/.test(value)){alert("مقدار قطعه معتبر نیست؛ نمونه: 1k، 10u، 100n");return}
  if(id!==c.id&&findComponent(id)){alert("این شناسه قبلاً استفاده شده است.");return}
  const old=c.id;c.id=id;c.value=value;
