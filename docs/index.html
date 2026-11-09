@@ -3,96 +3,201 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#081522">
-<title>ElectroLab AI | محیط طراحی و شبیه‌سازی مدار</title>
+<title>ElectroLab AI | ویرایشگر گرافیکی مدار</title>
 <style>
-:root{color-scheme:dark;--bg:#081522;--panel:#10263a;--panel2:#0b1d2d;--line:#25445d;--muted:#a8bdcf;--cyan:#49c6d8;--green:#4bd39a;--red:#ff7777;--amber:#f1c36d}
+:root{color-scheme:dark;--bg:#081522;--panel:#10263a;--line:#25445d;--muted:#a8bdcf;--cyan:#49c6d8;--green:#4bd39a;--red:#ff7777;--amber:#f1c36d}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0,#153956 0,transparent 42%),var(--bg);color:#eef7ff;font-family:Tahoma,Arial,sans-serif;line-height:1.8}
-.wrap{max-width:1220px;margin:auto;padding:22px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:16px}
-.brand{font-weight:900;font-size:21px}.tag,.pill{border:1px solid #286078;color:#8ee9f2;border-radius:999px;padding:3px 11px;font-size:12px}
-.hero{padding:35px 0 24px}.hero h1{font-size:clamp(27px,4vw,42px);line-height:1.4;margin:5px 0}.hero p,.muted{color:var(--muted);font-size:13px}
-.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr);gap:16px}.panel,.card{background:linear-gradient(145deg,#132d44,#0d2032);border:1px solid var(--line);border-radius:15px;padding:17px;min-width:0}
-.panel h2,.card h3{font-size:16px;margin:0 0 10px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}input,textarea{width:100%;background:#071522;border:1px solid #31516b;color:#eaf7ff;border-radius:9px;padding:11px;font:13px Tahoma,Arial;outline:none}input:focus,textarea:focus{border-color:var(--cyan)}
-textarea{min-height:190px;resize:vertical;direction:ltr;text-align:left;font:13px/1.7 Consolas,monospace}
-button{border:0;border-radius:9px;background:var(--cyan);color:#05202a;padding:10px 15px;font-weight:800;cursor:pointer}button.secondary{background:#203e56;color:#eaf7ff;border:1px solid #355873}button:disabled{opacity:.5;cursor:wait}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.status{font-size:12px;color:var(--muted)}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}
-.canvas{background-color:#091a29;background-image:linear-gradient(#18334a 1px,transparent 1px),linear-gradient(90deg,#18334a 1px,transparent 1px);background-size:24px 24px;border:1px solid var(--line);border-radius:11px;min-height:235px;display:grid;place-items:center;overflow:hidden}
-svg{width:100%;max-width:600px;height:auto}.wire{stroke:#64d8e5;stroke-width:3;fill:none}.component{stroke:#f3c66f;stroke-width:3;fill:#122b40}.node{fill:#64d8e5}.svgtext{fill:#eaf7ff;font:14px Tahoma}.result{white-space:pre-wrap;direction:ltr;text-align:left;background:#06111c;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:110px;max-height:320px;overflow:auto;font:12px/1.6 Consolas,monospace;color:#c8e6ef}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.metric{background:#0a1b2a;border:1px solid var(--line);padding:12px;border-radius:10px}.metric b{display:block;font-size:16px}.metric span{font-size:11px;color:var(--muted)}
-.notice{border-right:3px solid var(--amber);background:#2a2519;color:#f6e5bd;border-radius:8px;padding:12px 14px;font-size:12px;margin-top:16px}
-a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);margin-top:30px;padding-top:18px;color:var(--muted);font-size:12px}
-@media(max-width:820px){.layout{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}}
+.wrap{max-width:1450px;margin:auto;padding:20px 16px 55px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}.brand{font-weight:900;font-size:21px}.tag,.pill{border:1px solid #286078;color:#8ee9f2;border-radius:999px;padding:3px 11px;font-size:12px}
+.hero{padding:25px 0 18px}.hero h1{font-size:clamp(25px,3vw,36px);margin:4px 0}.hero p,.muted{color:var(--muted);font-size:13px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}.panel{background:linear-gradient(145deg,#132d44,#0d2032);border:1px solid var(--line);border-radius:14px;padding:15px;min-width:0}.panel h2{font-size:15px;margin:0 0 10px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.tools{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.tools button{min-width:75px}
+button{border:0;border-radius:8px;background:var(--cyan);color:#05202a;padding:9px 12px;font-weight:800;cursor:pointer;font-family:inherit;font-size:12px}button.secondary{background:#203e56;color:#eaf7ff;border:1px solid #355873}button.danger{background:#542d38;color:#ffdce0;border:1px solid #81424e}button.active{outline:2px solid var(--amber);background:#57472a;color:#fff}
+button:disabled{opacity:.5;cursor:wait}label{font-size:12px;color:var(--muted);display:block;margin:7px 0 4px}
+input,textarea,select{width:100%;background:#071522;border:1px solid #31516b;color:#eaf7ff;border-radius:8px;padding:10px;font:13px Tahoma,Arial;outline:none}input:focus,textarea:focus,select:focus{border-color:var(--cyan)}
+textarea{min-height:145px;resize:vertical;direction:ltr;text-align:left;font:12px/1.7 Consolas,monospace}
+.canvas{background-color:#091a29;background-image:linear-gradient(#18334a 1px,transparent 1px),linear-gradient(90deg,#18334a 1px,transparent 1px);background-size:24px 24px;border:1px solid var(--line);border-radius:10px;overflow:auto;min-height:430px}
+#circuit{display:block;width:100%;min-width:650px;height:auto;touch-action:manipulation}.wire{stroke:#64d8e5;stroke-width:3;fill:none;stroke-linecap:round}.part{stroke:#f3c66f;stroke-width:3;fill:#122b40}.part-label{fill:#eef7ff;font:14px Tahoma}.part-value{fill:#f3c66f;font:12px Tahoma}.terminal{fill:#071522;stroke:#64d8e5;stroke-width:3;cursor:pointer}.terminal:hover{fill:#f3c66f}.selected .part{stroke:#49c6d8;stroke-width:4}.selected .part-label{fill:#49c6d8}.wireline{stroke:#49c6d8;stroke-width:3;fill:none;cursor:pointer}.ground{stroke:#4bd39a;stroke-width:3;fill:none}
+.status{font-size:12px;color:var(--muted)}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}
+.result{white-space:pre-wrap;direction:ltr;text-align:left;background:#06111c;border:1px solid var(--line);border-radius:9px;padding:11px;min-height:80px;max-height:260px;overflow:auto;font:12px/1.6 Consolas,monospace;color:#c8e6ef}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.side{display:grid;gap:12px;align-content:start}.metric{background:#0a1b2a;border:1px solid var(--line);padding:10px;border-radius:9px;margin-top:8px}.metric b{display:block;font-size:15px}.metric span{font-size:11px;color:var(--muted)}
+.notice{border-right:3px solid var(--amber);background:#2a2519;color:#f6e5bd;border-radius:8px;padding:11px 13px;font-size:12px;margin-top:14px}
+a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);margin-top:25px;padding-top:15px;color:var(--muted);font-size:12px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.side{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}.canvas{min-height:320px}}
 </style>
 </head>
 <body><main class="wrap">
-<header class="top"><div class="brand">⚡ ElectroLab AI</div><span class="tag">محیط آزمایش · نسخه 0.2.0</span></header>
-<section class="hero"><span class="pill">Circuit Lab / ngspice</span><h1>طراحی، اجرا و بررسی مدارهای الکترونیکی</h1><p>اولین محیط تعاملی ElectroLab AI؛ یک مدار DC ساده را ویرایش کنید، وضعیت موتور را ببینید و در صورت اتصال Backend، شبیه‌سازی واقعی را اجرا کنید.</p></section>
+<header class="top"><div class="brand">⚡ ElectroLab AI</div><span class="tag">ویرایشگر گرافیکی · نسخه 0.3.0</span></header>
+<section class="hero"><span class="pill">Circuit Designer / SPICE</span><h1>طراحی مدار با اتصال گرافیکی قطعات</h1><p>قطعه اضافه کنید، دو ترمینال را به هم وصل کنید، یک گره را زمین کنید و نت‌لیست تولیدشده را برای شبیه‌سازی ارسال کنید.</p></section>
 <section class="layout">
 <div class="panel">
-<div class="toolbar"><h2>شماتیک نمونه مدار</h2><span class="status" id="engineState">وضعیت موتور بررسی نشده</span></div>
-<div class="canvas"><svg viewBox="0 0 600 230" role="img" aria-label="مدار منبع پنج ولت و مقاومت یک کیلو اهم">
-<path class="wire" d="M90 65 H230 M350 65 H500 V175 H90 V65 M90 65 V175"/>
-<circle class="node" cx="90" cy="65" r="5"/><circle class="node" cx="500" cy="65" r="5"/>
-<circle class="node" cx="500" cy="175" r="5"/><circle class="node" cx="90" cy="175" r="5"/>
-<circle class="component" cx="90" cy="120" r="24"/><path class="wire" d="M90 96 V105 M90 135 V144"/>
-<path class="wire" d="M80 112 H100 M90 105 V119 M82 128 H98"/>
-<rect class="component" x="230" y="49" width="120" height="32" rx="5"/>
-<text class="svgtext" x="290" y="39" text-anchor="middle">R1 · 1 kΩ</text>
-<text class="svgtext" x="55" y="123" text-anchor="middle">V1</text>
-<text class="svgtext" x="55" y="145" text-anchor="middle">5V DC</text>
-<text class="svgtext" x="290" y="125" text-anchor="middle">تحلیل نقطه‌کار DC</text>
-<text class="svgtext" x="290" y="148" text-anchor="middle">.op</text>
-</svg></div>
-<div class="grid"><div class="metric"><b>R / C / L</b><span>عناصر پسیو پایه</span></div><div class="metric"><b>V / I</b><span>منابع DC</span></div><div class="metric"><b>.op</b><span>تحلیل نقطه‌کار</span></div></div>
-<div style="margin-top:18px"><label for="netlist">نت‌لیست SPICE</label><textarea id="netlist" spellcheck="false">مدار تست DC
-V1 in 0 DC 5
-R1 in 0 1k
-.op
-.end</textarea></div>
-<div class="actions"><button id="runBtn">اجرای شبیه‌سازی</button><button class="secondary" id="resetBtn">بازگردانی نمونه</button></div>
-<div style="margin-top:16px"><div class="toolbar"><h2>خروجی موتور</h2><span id="runState" class="status">آماده اجرا</span></div><pre class="result" id="output">پس از اتصال Backend، خروجی ngspice در این بخش نمایش داده می‌شود.</pre></div>
+ <div class="toolbar"><h2>محیط طراحی مدار</h2><span id="editorState" class="status">آماده طراحی</span></div>
+ <div class="tools">
+  <button data-add="R">＋ مقاومت R</button><button data-add="C" class="secondary">＋ خازن C</button><button data-add="L" class="secondary">＋ سلف L</button><button data-add="V" class="secondary">＋ منبع ولتاژ</button><button data-add="I" class="secondary">＋ منبع جریان</button>
+ </div>
+ <div class="actions" style="margin:0 0 10px">
+  <button id="wireMode" class="secondary">اتصال سیم</button><button id="groundMode" class="secondary">اتصال به زمین</button><button id="deletePart" class="danger">حذف قطعه انتخابی</button><button id="clearCircuit" class="secondary">مدار جدید</button><button id="sampleCircuit" class="secondary">مدار نمونه</button>
+ </div>
+ <div class="canvas"><svg id="circuit" viewBox="0 0 900 500" role="img" aria-label="محیط گرافیکی طراحی مدار"></svg></div>
+ <p class="status" id="modeHelp">برای انتخاب قطعه روی آن بزنید. برای اتصال، حالت «اتصال سیم» را فعال و دو ترمینال را انتخاب کنید.</p>
+ <div class="toolbar" style="margin-top:14px"><h2>نت‌لیست تولیدشده</h2><span class="status">به‌روزرسانی خودکار</span></div>
+ <textarea id="netlist" spellcheck="false" readonly></textarea>
+ <div class="actions"><button id="runBtn">اجرای شبیه‌سازی ngspice</button><button id="copyNetlist" class="secondary">کپی نت‌لیست</button><button id="downloadNetlist" class="secondary">دریافت فایل CIR</button><button id="exportProject" class="secondary">خروجی پروژه JSON</button></div>
+ <div style="margin-top:14px"><div class="toolbar"><h2>خروجی شبیه‌سازی</h2><span id="runState" class="status">آماده اجرا</span></div><pre id="output" class="result">برای اجرای شبیه‌سازی، Backend و ngspice باید در دسترس باشند.</pre></div>
 </div>
-<aside style="display:grid;gap:14px;align-content:start">
-<div class="panel"><h2>اتصال Backend</h2><label for="apiBase">نشانی پایه API</label><input id="apiBase" type="url" placeholder="https://your-api.example.com">
-<div class="actions"><button class="secondary" id="connectBtn">بررسی اتصال</button></div><p class="status" id="apiState">نشانی پیش‌فرض: http://localhost:8000</p></div>
-<div class="panel"><h2>قابلیت‌های فعال API</h2><p class="status">● سلامت سرویس <code>/api/v1/health</code></p><p class="status">● فهرست بردها <code>/api/v1/boards</code></p><p class="status">● وضعیت ngspice <code>/api/v1/simulators/ngspice</code></p><p class="status">● اجرای مدار <code>/api/v1/simulations/ngspice</code></p></div>
-<div class="panel"><h2>پروفایل بردها</h2><p class="muted">Arduino Uno · AVR</p><p class="muted">ESP32 DevKit V1 · ESP32</p><p class="muted">STM32 Generic · ARM Cortex-M</p><p class="muted">تست فیزیکی و شبیه‌سازی داخلی MCU هنوز فعال نیست.</p></div>
+<aside class="side">
+ <div class="panel"><h2>ویژگی قطعه انتخاب‌شده</h2><p id="selectionHint" class="muted">یک قطعه را روی صفحه انتخاب کنید.</p><div id="inspector" hidden><label for="partName">شناسه قطعه</label><input id="partName" maxlength="12"><label for="partValue">مقدار قطعه</label><input id="partValue" maxlength="20"><div class="actions"><button id="applyPart">اعمال تغییرات</button></div></div></div>
+ <div class="panel"><h2>اتصال Backend</h2><label for="apiBase">نشانی پایه API</label><input id="apiBase" type="url" placeholder="http://localhost:8000"><div class="actions"><button class="secondary" id="connectBtn">بررسی اتصال</button></div><p class="status" id="apiState">در انتظار بررسی</p><p class="status" id="engineState">ngspice: نامشخص</p></div>
+ <div class="panel"><h2>آمار مدار</h2><div class="metric"><b id="partCount">۰</b><span>تعداد قطعات</span></div><div class="metric"><b id="wireCount">۰</b><span>تعداد اتصال‌ها</span></div><div class="metric"><b id="nodeCount">۰</b><span>تعداد گره‌های الکتریکی</span></div></div>
+ <div class="panel"><h2>راهنمای اتصال</h2><p class="muted">۱. یک قطعه به مدار اضافه کنید.</p><p class="muted">۲. «اتصال سیم» را بزنید و دو دایره ترمینال را انتخاب کنید.</p><p class="muted">۳. برای تعیین مرجع ولتاژ، «اتصال به زمین» را بزنید و یک ترمینال را انتخاب کنید.</p><p class="muted">۴. مقدار قطعه را انتخاب و ویرایش کنید؛ نت‌لیست خودکار ساخته می‌شود.</p></div>
 </aside>
 </section>
-<section class="notice"><b>محدودیت ایمنی و اجرا:</b> این نسخه فقط عناصر R/C/L/V/I و تحلیل نقطه‌کار DC را می‌پذیرد. دستورهای اسکریپتی، فایل خارجی و فرمان سیستم رد می‌شوند. GitHub Pages فقط رابط استاتیک را میزبانی می‌کند؛ برای اجرای واقعی باید Backend پایتون و ngspice روی سرور یا رایانه خودتان اجرا شود و نشانی آن را در بخش اتصال وارد کنید. از این محیط برای تأیید ایمنی مدار برق شهر استفاده نکنید.</section>
-<footer class="foot">ElectroLab AI · <a href="https://github.com/mydsoftware/ElectroLab-AI">مخزن GitHub</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/NGSPICE.fa.md">راهنمای نصب و API</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/ARCHITECTURE.fa.md">معماری</a></footer>
+<section class="notice"><b>محدودیت نسخه:</b> قطعات R/C/L/V/I و تحلیل نقطه‌کار DC پشتیبانی می‌شوند. این نسخه هنوز ابزار PCB، مدل میکروکنترلر، تحلیل گذرا، جابه‌جایی آزاد قطعات و کتابخانه قطعات پیشرفته ندارد. نتیجه شبیه‌سازی به‌تنهایی تأیید ایمنی مدار نیست؛ برای برق شهر از این ابزار استفاده نکنید.</section>
+<footer class="foot">ElectroLab AI · <a href="https://github.com/mydsoftware/ElectroLab-AI">مخزن GitHub</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/NGSPICE.fa.md">راهنمای Backend</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/ARCHITECTURE.fa.md">معماری</a></footer>
 </main>
 <script>
 const $=id=>document.getElementById(id);
-const sample="مدار تست DC\nV1 in 0 DC 5\nR1 in 0 1k\n.op\n.end";
-const saved=localStorage.getItem("electrolab-api-base");
-$("apiBase").value=saved||"http://localhost:8000";
+const STORAGE_KEY="electrolab-circuit-v1";
+const defaultCircuit={components:[
+{id:"V1",type:"V",value:"5",x:180,y:220},
+{id:"R1",type:"R",value:"1k",x:510,y:220}
+],wires:[{a:"V1:0",b:"R1:0"},{a:"R1:1",b:"V1:1"}],grounds:["V1:1"]};
+let circuit=structuredClone(defaultCircuit),selected=null,mode="select",firstTerminal=null;
+const defaults={R:"1k",C:"10u",L:"10m",V:"5",I:"1m"};
+const typeNames={R:"مقاومت",C:"خازن",L:"سلف",V:"منبع ولتاژ",I:"منبع جریان"};
+function terminalPoint(c,index){return {x:c.x+(index===0?-58:58),y:c.y}}
+function escapeXml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function findComponent(id){return circuit.components.find(c=>c.id===id)}
+function nextId(type){let n=1;while(findComponent(type+n))n++;return type+n}
+function drawSymbol(c){
+ const x=c.x,y=c.y;
+ let symbol="";
+ if(c.type==="R")symbol='<path class="part" d="M-28 0 l9 -13 12 26 12 -26 12 26 12 -26 9 13"/>';
+ if(c.type==="C")symbol='<path class="part" d="M-10 -23 V23 M10 -23 V23"/>';
+ if(c.type==="L")symbol='<path class="part" d="M-28 0 a10 15 0 0 1 20 0 a10 15 0 0 1 20 0 a10 15 0 0 1 20 0"/>';
+ if(c.type==="V")symbol='<circle class="part" cx="0" cy="0" r="25"/><path class="part" d="M-10 0 H10 M0 -10 V10"/>';
+ if(c.type==="I")symbol='<circle class="part" cx="0" cy="0" r="25"/><path class="part" d="M0 13 V-13 M-7 -5 L0 -13 L7 -5"/>';
+ return '<g class="'+(selected===c.id?"selected":"")+'" data-part="'+escapeXml(c.id)+'"><path class="wire" d="M-58 0 H-28 M28 0 H58" transform="translate('+x+' '+y+')"/><g transform="translate('+x+' '+y+')">'+symbol+'</g><text class="part-label" x="'+x+'" y="'+(y-42)+'" text-anchor="middle">'+escapeXml(c.id)+'</text><text class="part-value" x="'+x+'" y="'+(y+48)+'" text-anchor="middle">'+escapeXml(c.value)+'</text><circle class="terminal" data-terminal="'+escapeXml(c.id)+':0" cx="'+(x-58)+'" cy="'+y+'" r="7"/><circle class="terminal" data-terminal="'+escapeXml(c.id)+':1" cx="'+(x+58)+'" cy="'+y+'" r="7"/></g>';
+}
+function render(){
+ const svg=$("circuit");let markup="";
+ for(const w of circuit.wires){const a=terminalByKey(w.a),b=terminalByKey(w.b);if(a&&b)markup+='<path class="wireline" d="M'+a.x+' '+a.y+' L'+b.x+' '+b.y+'"/>'}
+ for(const key of circuit.grounds){const p=terminalByKey(key);if(p)markup+='<path class="ground" d="M'+p.x+' '+p.y+' v14 m-13 0 h26 m-9 6 h18 m-5 6 h10"/>'}
+ if(firstTerminal){const p=terminalByKey(firstTerminal);if(p)markup+='<circle cx="'+p.x+'" cy="'+p.y+'" r="13" fill="none" stroke="#f1c36d" stroke-width="2"/>'}
+ for(const c of circuit.components)markup+=drawSymbol(c);
+ svg.innerHTML=markup;
+ $("netlist").value=generateNetlist();
+ $("partCount").textContent=circuit.components.length;
+ $("wireCount").textContent=circuit.wires.length;
+ $("nodeCount").textContent=buildNodes().roots.size;
+ updateInspector();persist();
+}
+function terminalByKey(key){const [id,indexText]=key.split(":");const c=findComponent(id);return c?terminalPoint(c,Number(indexText)):null}
+function buildNodes(){
+ const keys=circuit.components.flatMap(c=>[c.id+":0",c.id+":1"]);
+ const parent=new Map(keys.map(k=>[k,k]));
+ const root=k=>{let p=parent.get(k);if(p!==k){p=root(p);parent.set(k,p)}return p};
+ const join=(a,b)=>{if(parent.has(a)&&parent.has(b))parent.set(root(a),root(b))};
+ circuit.wires.forEach(w=>join(w.a,w.b));
+ const grounded=new Set(circuit.grounds.filter(k=>parent.has(k)).map(root));
+ const roots=new Set(keys.map(root)),names=new Map();
+ let n=1;for(const r of roots){if(grounded.has(r))names.set(r,"0");else names.set(r,"n"+n++)}
+ return {root,names,roots,grounded,node:key=>names.get(root(key))||"0"};
+}
+function generateNetlist(){
+ if(!circuit.components.length)return "* ElectroLab AI - empty circuit\n.op\n.end";
+ const graph=buildNodes();
+ const lines=["* ElectroLab AI generated circuit"];
+ for(const c of circuit.components){
+  const n1=graph.node(c.id+":0"),n2=graph.node(c.id+":1");
+  lines.push(c.id+" "+n1+" "+n2+(c.type==="V"||c.type==="I"?" DC ":" ")+c.value);
+ }
+ lines.push(".op",".end");return lines.join("\n");
+}
+function updateInspector(){
+ const c=findComponent(selected);$("inspector").hidden=!c;$("selectionHint").hidden=!!c;
+ if(c){$("partName").value=c.id;$("partValue").value=c.value;$("selectionHint").textContent=typeNames[c.type]+" انتخاب شده: "+c.id}
+ else $("selectionHint").textContent="یک قطعه را روی صفحه انتخاب کنید.";
+}
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(circuit))}catch(e){}}
+function setMode(next){
+ mode=mode===next?"select":next;firstTerminal=null;
+ $("wireMode").classList.toggle("active",mode==="wire");
+ $("groundMode").classList.toggle("active",mode==="ground");
+ $("modeHelp").textContent=mode==="wire"?"دو ترمینال را به‌ترتیب انتخاب کنید تا سیم وصل شود.":mode==="ground"?"ترمینالی را انتخاب کنید که باید به زمین (گره صفر) متصل شود.":"برای انتخاب قطعه روی آن بزنید.";
+ render();
+}
+function addComponent(type){
+ const id=nextId(type),index=circuit.components.length;
+ const x=150+(index%4)*195,y=110+Math.floor(index/4)*145;
+ circuit.components.push({id,type,value:defaults[type],x,y});selected=id;mode="select";render();
+ $("editorState").textContent=typeNames[type]+" "+id+" اضافه شد";
+}
+function onTerminal(key){
+ if(mode==="ground"){
+  circuit.grounds=circuit.grounds.filter(x=>x!==key);circuit.grounds.push(key);setMode("select");
+  $("editorState").textContent="گره زمین تنظیم شد";return;
+ }
+ if(mode!=="wire")return;
+ if(!firstTerminal){firstTerminal=key;$("editorState").textContent="ترمینال اول انتخاب شد؛ ترمینال دوم را بزنید";render();return}
+ if(firstTerminal===key){firstTerminal=null;render();return}
+ const duplicate=circuit.wires.some(w=>(w.a===firstTerminal&&w.b===key)||(w.a===key&&w.b===firstTerminal));
+ if(!duplicate)circuit.wires.push({a:firstTerminal,b:key});
+ firstTerminal=null;$("editorState").textContent=duplicate?"این اتصال از قبل وجود دارد":"سیم جدید اضافه شد";render();
+}
+$("circuit").addEventListener("click",e=>{
+ const terminal=e.target.closest("[data-terminal]");
+ if(terminal){onTerminal(terminal.dataset.terminal);return}
+ const part=e.target.closest("[data-part]");
+ if(part){selected=part.dataset.part;if(mode!=="select")setMode("select");else render()}
+});
+document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>addComponent(b.dataset.add)));
+$("wireMode").addEventListener("click",()=>setMode("wire"));
+$("groundMode").addEventListener("click",()=>setMode("ground"));
+$("applyPart").addEventListener("click",()=>{
+ const c=findComponent(selected);if(!c)return;
+ const id=$("partName").value.trim(),value=$("partValue").value.trim();
+ if(!/^[RCLVI][A-Za-z0-9_]{0,10}$/.test(id)){alert("شناسه باید با حرف نوع قطعه شروع شود.");return}
+ if(!/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?[TGMKUNPFmunpf]?$/.test(value)){alert("مقدار قطعه معتبر نیست؛ نمونه: 1k، 10u، 100n");return}
+ if(id!==c.id&&findComponent(id)){alert("این شناسه قبلاً استفاده شده است.");return}
+ const old=c.id;c.id=id;c.value=value;
+ circuit.wires.forEach(w=>{w.a=w.a.replace(old+":",id+":");w.b=w.b.replace(old+":",id+":")});
+ circuit.grounds=circuit.grounds.map(k=>k.replace(old+":",id+":"));selected=id;render();
+});
+$("deletePart").addEventListener("click",()=>{
+ if(!selected)return;circuit.components=circuit.components.filter(c=>c.id!==selected);
+ circuit.wires=circuit.wires.filter(w=>!w.a.startsWith(selected+":")&&!w.b.startsWith(selected+":"));
+ circuit.grounds=circuit.grounds.filter(k=>!k.startsWith(selected+":"));selected=null;render();
+});
+$("clearCircuit").addEventListener("click",()=>{circuit={components:[],wires:[],grounds:[]};selected=null;render();$("editorState").textContent="مدار خالی ایجاد شد"});
+$("sampleCircuit").addEventListener("click",()=>{circuit=structuredClone(defaultCircuit);selected=null;mode="select";render();$("editorState").textContent="مدار نمونه بارگذاری شد";$("wireMode").classList.remove("active");$("groundMode").classList.remove("active")});
+$("copyNetlist").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("netlist").value);$("editorState").textContent="نت‌لیست کپی شد"}catch(e){$("netlist").select();document.execCommand("copy")}});
+$("downloadNetlist").addEventListener("click",()=>download("electrolab-circuit.cir",$("netlist").value,"text/plain"));
+$("exportProject").addEventListener("click",()=>download("electrolab-project.json",JSON.stringify(circuit,null,2),"application/json"));
+function download(name,data,type){const blob=new Blob([data],{type});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+const stored=localStorage.getItem(STORAGE_KEY);if(stored){try{const parsed=JSON.parse(stored);if(Array.isArray(parsed.components)&&Array.isArray(parsed.wires)&&Array.isArray(parsed.grounds))circuit=parsed}catch(e){}}
+const savedApi=localStorage.getItem("electrolab-api-base");$("apiBase").value=savedApi||"http://localhost:8000";
 function base(){return $("apiBase").value.trim().replace(/\/$/,"")}
 function setState(id,text,kind=""){const el=$(id);el.textContent=text;el.className="status "+kind}
 async function connect(){
- const url=base();if(!url){setState("apiState","نشانی API را وارد کنید","bad");return false}
- localStorage.setItem("electrolab-api-base",url);setState("apiState","در حال بررسی اتصال...");
+ const url=base();if(!url){setState("apiState","نشانی API را وارد کنید","bad");return}
+ localStorage.setItem("electrolab-api-base",url);setState("apiState","در حال بررسی...");
  try{
-  const [health,engine]=await Promise.all([fetch(url+"/api/v1/health"),fetch(url+"/api/v1/simulators/ngspice")]);
-  if(!health.ok||!engine.ok)throw new Error("پاسخ نامعتبر از API");
-  const h=await health.json(),e=await engine.json();
-  setState("apiState",h.status==="ok"?"اتصال API برقرار است":"پاسخ سرویس نامعتبر است",h.status==="ok"?"ok":"bad");
+  const [hres,eres]=await Promise.all([fetch(url+"/api/v1/health"),fetch(url+"/api/v1/simulators/ngspice")]);
+  if(!hres.ok||!eres.ok)throw new Error("پاسخ نامعتبر API");
+  const h=await hres.json(),e=await eres.json();
+  setState("apiState",h.status==="ok"?"اتصال API برقرار است":"سرویس پاسخ نامعتبر داد",h.status==="ok"?"ok":"bad");
   setState("engineState",e.available?(e.version||"ngspice آماده است"):"ngspice نصب نیست",e.available?"ok":"warn");
-  return h.status==="ok"&&e.available;
- }catch(err){setState("apiState","اتصال ناموفق: "+err.message,"bad");setState("engineState","موتور در دسترس نیست","bad");return false}
+ }catch(err){setState("apiState","اتصال ناموفق: "+err.message,"bad");setState("engineState","موتور در دسترس نیست","bad")}
 }
 $("connectBtn").addEventListener("click",connect);
 $("runBtn").addEventListener("click",async()=>{
  const btn=$("runBtn");btn.disabled=true;setState("runState","در حال اجرا...");$("output").textContent="";
  try{
   const response=await fetch(base()+"/api/v1/simulations/ngspice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({netlist:$("netlist").value,timeout_seconds:10})});
-  const data=await response.json();
-  if(!response.ok)throw new Error(data.detail||"خطای اجرای شبیه‌سازی");
-  $("output").textContent=data.output||data.message;
-  setState("runState",data.status+" · "+data.elapsed_ms+" ms",data.status==="COMPLETED"?"ok":"bad");
- }catch(err){$("output").textContent=err.message+"\n\nابتدا Backend را اجرا و نشانی API را تنظیم کنید.";setState("runState","اجرا ناموفق","bad")}
+  const data=await response.json();if(!response.ok)throw new Error(data.detail||"خطای شبیه‌سازی");
+  $("output").textContent=data.output||data.message;setState("runState",data.status+" · "+data.elapsed_ms+" ms",data.status==="COMPLETED"?"ok":"bad");
+ }catch(err){$("output").textContent=err.message+"\nBackend را اجرا و نشانی API را تنظیم کنید.";setState("runState","اجرا ناموفق","bad")}
  finally{btn.disabled=false}
 });
-$("resetBtn").addEventListener("click",()=>{$("netlist").value=sample;$("output").textContent="نت‌لیست نمونه بازگردانی شد.";setState("runState","آماده اجرا")});
-connect();
+render();connect();
 </script></body></html>
