@@ -30,3 +30,20 @@ jobs:
           node-version: "22"
       - name: اجرای تست‌های مسیریابی سیم
         run: node --test tests/frontend/*.test.cjs
+      - name: نصب Playwright و Chromium
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: اجرای وب‌سرور رابط گرافیکی
+        run: |
+          python -m http.server 4173 --directory docs > /tmp/electrolab-http.log 2>&1 &
+          for i in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/electrolab-http.log
+          exit 1
+      - name: اجرای تست‌های تعاملی Playwright
+        env:
+          ELECTROLAB_BASE_URL: http://127.0.0.1:4173/
+        run: node --test tests/e2e/*.spec.cjs
