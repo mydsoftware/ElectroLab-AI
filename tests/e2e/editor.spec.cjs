@@ -27,6 +27,8 @@ test("ویرایشگر مدار: قطعه، اتصال، انشعاب، چرخش
     await page.locator('[data-terminal="R1:0"]').click();
     assert.equal(await page.locator("#wireCount").textContent(), "1");
 
+    await page.locator("#wireMode").click();
+
     const wireMidpoint = await page.locator("#circuit").evaluate(svg => {
       const point = svg.createSVGPoint();
       point.x = 247;
