@@ -44,7 +44,7 @@ test("ویرایشگر مدار: قطعه، اتصال، انشعاب، چرخش
     }, wireMidpoint);
     assert.equal(await page.locator("#circuit .junction-dot").count(), 1);
     assert.equal(await page.locator("#wireCount").textContent(), "2");
-    assert.match(await page.locator("#netlist").inputValue(), /n\\d/);
+    assert.match(await page.locator("#netlist").inputValue(), /n\d/);
 
     await page.locator("#circuit [data-part='R1']").click();
     const beforeRotate = await page.locator("#circuit [data-terminal='R1:0']").getAttribute("cy");
