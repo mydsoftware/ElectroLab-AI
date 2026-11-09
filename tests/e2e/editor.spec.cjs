@@ -27,7 +27,14 @@ test("ویرایشگر مدار: قطعه، اتصال، انشعاب، چرخش
     await page.locator('[data-terminal="R1:0"]').click();
     assert.equal(await page.locator("#wireCount").textContent(), "1");
 
-    await page.locator('[data-wire-index="0"]').click({ position: { x: 39, y: 0 } });
+    const wireMidpoint = await page.locator("#circuit").evaluate(svg => {
+      const point = svg.createSVGPoint();
+      point.x = 247;
+      point.y = 110;
+      const screenPoint = point.matrixTransform(svg.getScreenCTM());
+      return { x: screenPoint.x, y: screenPoint.y };
+    });
+    await page.mouse.click(wireMidpoint.x, wireMidpoint.y);
     assert.equal(await page.locator("#circuit .junction-dot").count(), 1);
     assert.equal(await page.locator("#wireCount").textContent(), "2");
     assert.match(await page.locator("#netlist").inputValue(), /n\\d/);
