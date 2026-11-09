@@ -16,7 +16,7 @@ button:disabled{opacity:.5;cursor:wait}label{font-size:12px;color:var(--muted);d
 input,textarea,select{width:100%;background:#071522;border:1px solid #31516b;color:#eaf7ff;border-radius:8px;padding:10px;font:13px Tahoma,Arial;outline:none}input:focus,textarea:focus,select:focus{border-color:var(--cyan)}
 textarea{min-height:145px;resize:vertical;direction:ltr;text-align:left;font:12px/1.7 Consolas,monospace}
 .canvas{background-color:#091a29;background-image:linear-gradient(#18334a 1px,transparent 1px),linear-gradient(90deg,#18334a 1px,transparent 1px);background-size:24px 24px;border:1px solid var(--line);border-radius:10px;overflow:auto;min-height:430px}
-#circuit{display:block;width:100%;min-width:650px;height:auto;touch-action:manipulation}.wire{stroke:#64d8e5;stroke-width:3;fill:none;stroke-linecap:round}.part{stroke:#f3c66f;stroke-width:3;fill:#122b40}.part-label{fill:#eef7ff;font:14px Tahoma}.part-value{fill:#f3c66f;font:12px Tahoma}.terminal{fill:#071522;stroke:#64d8e5;stroke-width:3;cursor:pointer}.terminal:hover{fill:#f3c66f}.selected .part{stroke:#49c6d8;stroke-width:4}.selected .part-label{fill:#49c6d8}.wireline{stroke:#49c6d8;stroke-width:3;fill:none;cursor:pointer}.ground{stroke:#4bd39a;stroke-width:3;fill:none}
+#circuit{display:block;width:100%;min-width:650px;height:auto;touch-action:manipulation}.wire{stroke:#64d8e5;stroke-width:3;fill:none;stroke-linecap:round}.part{stroke:#f3c66f;stroke-width:3;fill:#122b40}.part-label{fill:#eef7ff;font:14px Tahoma}.part-value{fill:#f3c66f;font:12px Tahoma}.terminal{fill:#071522;stroke:#64d8e5;stroke-width:3;cursor:pointer}.terminal:hover{fill:#f3c66f}.junction-dot{fill:#f1c36d;stroke:#fff0c2;stroke-width:2;cursor:pointer}.junction-dot:hover{fill:#fff}.selected .part{stroke:#49c6d8;stroke-width:4}.selected .part-label{fill:#49c6d8}.wireline{stroke:#49c6d8;stroke-width:3;fill:none;cursor:pointer}.ground{stroke:#4bd39a;stroke-width:3;fill:none}
 .status{font-size:12px;color:var(--muted)}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--amber)}
 .result{white-space:pre-wrap;direction:ltr;text-align:left;background:#06111c;border:1px solid var(--line);border-radius:9px;padding:11px;min-height:80px;max-height:260px;overflow:auto;font:12px/1.6 Consolas,monospace;color:#c8e6ef}
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.side{display:grid;gap:12px;align-content:start}.metric{background:#0a1b2a;border:1px solid var(--line);padding:10px;border-radius:9px;margin-top:8px}.metric b{display:block;font-size:15px}.metric span{font-size:11px;color:var(--muted)}
@@ -38,7 +38,7 @@ a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);
   <button id="wireMode" class="secondary">اتصال سیم</button><button id="groundMode" class="secondary">اتصال به زمین</button><button id="deletePart" class="danger">حذف قطعه انتخابی</button><button id="rotatePart" class="secondary">چرخش ۹۰°</button><button id="undoBtn" class="secondary" disabled>بازگشت</button><button id="redoBtn" class="secondary" disabled>انجام مجدد</button><button id="clearCircuit" class="secondary">مدار جدید</button><button id="sampleCircuit" class="secondary">مدار نمونه</button>
  </div>
  <div class="canvas"><svg id="circuit" viewBox="0 0 900 500" role="img" aria-label="محیط گرافیکی طراحی مدار"></svg></div>
- <p class="status" id="modeHelp">برای انتخاب قطعه روی آن بزنید. برای اتصال، حالت «اتصال سیم» را فعال و دو ترمینال را انتخاب کنید.</p>
+ <p class="status" id="modeHelp">برای انتخاب قطعه روی آن بزنید. برای اتصال، حالت «اتصال سیم» را فعال و دو ترمینال یا گره را انتخاب کنید. برای انشعاب، روی میانه سیم کلیک کنید.</p>
  <div class="toolbar" style="margin-top:14px"><h2>نت‌لیست تولیدشده</h2><span class="status">به‌روزرسانی خودکار</span></div>
  <textarea id="netlist" spellcheck="false" readonly></textarea>
  <div class="actions"><button id="runBtn">اجرای شبیه‌سازی ngspice</button><button id="copyNetlist" class="secondary">کپی نت‌لیست</button><button id="downloadNetlist" class="secondary">دریافت فایل CIR</button><button id="exportProject" class="secondary">خروجی پروژه JSON</button></div>
@@ -49,16 +49,16 @@ a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);
  <div class="panel"><h2>اتصال Backend</h2><label for="apiBase">نشانی پایه API</label><input id="apiBase" type="url" placeholder="http://localhost:8000"><div class="actions"><button class="secondary" id="connectBtn">بررسی اتصال</button></div><p class="status" id="apiState">در انتظار بررسی</p><p class="status" id="engineState">ngspice: نامشخص</p></div>
  <div class="panel"><h2>آمار مدار</h2><div class="metric"><b id="partCount">۰</b><span>تعداد قطعات</span></div><div class="metric"><b id="wireCount">۰</b><span>تعداد اتصال‌ها</span></div><div class="metric"><b id="nodeCount">۰</b><span>تعداد گره‌های الکتریکی</span></div></div>
  <div class="panel"><h2>اعتبارسنجی اتصالات</h2><p id="graphStatus" class="status">در انتظار بررسی مدار</p><ul id="graphIssues" class="muted" style="padding-right:18px;margin:6px 0"></ul></div>
- <div class="panel"><h2>راهنمای اتصال</h2><p class="muted">۱. یک قطعه به مدار اضافه کنید.</p><p class="muted">۲. «اتصال سیم» را بزنید و دو دایره ترمینال را انتخاب کنید.</p><p class="muted">۳. برای تعیین مرجع ولتاژ، «اتصال به زمین» را بزنید و یک ترمینال را انتخاب کنید.</p><p class="muted">۴. مقدار قطعه را انتخاب و ویرایش کنید؛ نت‌لیست خودکار ساخته می‌شود.</p></div>
+ <div class="panel"><h2>راهنمای اتصال</h2><p class="muted">۱. یک قطعه به مدار اضافه کنید.</p><p class="muted">۲. «اتصال سیم» را بزنید و دو دایره ترمینال را انتخاب کنید.</p><p class="muted">۳. برای تعیین مرجع ولتاژ، «اتصال به زمین» را بزنید و یک ترمینال را انتخاب کنید.</p><p class="muted">۴. مقدار قطعه را انتخاب و ویرایش کنید؛ نت‌لیست خودکار ساخته می‌شود.</p><p class="muted">۵. برای ساخت انشعاب، در حالت انتخاب روی میانه سیم کلیک کنید. نقطه طلایی یک گره مشترک است؛ عبور ساده دو سیم از روی هم اتصال ایجاد نمی‌کند.</p></div>
 </aside>
 </section>
-<section class="notice"><b>محدودیت نسخه:</b> قطعات R/C/L/V/I، جابه‌جایی، چرخش، بازگشت/انجام مجدد، نام‌گذاری گره‌ها و تشخیص اتصال کوتاه، پایه‌های آزاد و سیم‌های تکراری پشتیبانی می‌شوند. اتصال خودکار به میانه سیم، تحلیل PCB، مدل میکروکنترلر و تحلیل گذرا هنوز در دست توسعه‌اند. نتیجه شبیه‌سازی به‌تنهایی تأیید ایمنی مدار نیست؛ برای برق شهر از این ابزار استفاده نکنید.</section>
+<section class="notice"><b>محدودیت نسخه:</b> قطعات R/C/L/V/I، جابه‌جایی، چرخش، بازگشت/انجام مجدد، نام‌گذاری گره‌ها و تشخیص اتصال کوتاه، پایه‌های آزاد و سیم‌های تکراری پشتیبانی می‌شوند. اتصال به میانه سیم با گره انشعاب (Junction) پشتیبانی می‌شود؛ عبور ساده سیم‌ها از روی هم اتصال نیست. مسیریابی پیشرفته، تحلیل PCB، مدل میکروکنترلر و تحلیل گذرا هنوز در دست توسعه‌اند. نتیجه شبیه‌سازی به‌تنهایی تأیید ایمنی مدار نیست؛ برای برق شهر از این ابزار استفاده نکنید.</section>
 <footer class="foot">ElectroLab AI · <a href="https://github.com/mydsoftware/ElectroLab-AI">مخزن GitHub</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/NGSPICE.fa.md">راهنمای Backend</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/ARCHITECTURE.fa.md">معماری</a></footer>
 </main>
 <script>
 const $=id=>document.getElementById(id);
 const STORAGE_KEY="electrolab-circuit-v1";
-const defaultCircuit={components:[
+const defaultCircuit={junctions:[],components:[
 {id:"V1",type:"V",value:"5",x:180,y:220},
 {id:"R1",type:"R",value:"1k",x:510,y:220}
 ],wires:[{a:"V1:0",b:"R1:0"},{a:"R1:1",b:"V1:1"}],grounds:["V1:1"]};
@@ -86,11 +86,8 @@ function render(){
  if(!restoringHistory&&snapshot!==lastSnapshot){undoStack.push(lastSnapshot);if(undoStack.length>40)undoStack.shift();redoStack=[];lastSnapshot=snapshot}
  $("undoBtn").disabled=undoStack.length===0;$("redoBtn").disabled=redoStack.length===0;
  const svg=$("circuit");let markup="";
- for(let i=0;i<circuit.wires.length;i++){
-  const w=circuit.wires[i],a=terminalByKey(w.a),b=terminalByKey(w.b);
-  if(a&&b){const routeY=Math.min(a.y,b.y)-48-(i%3)*18;
-   markup+='<path class="wireline" d="M'+a.x+' '+a.y+' L'+a.x+' '+routeY+' L'+b.x+' '+routeY+' L'+b.x+' '+b.y+'"/>'}
- }
+ for(let i=0;i<circuit.wires.length;i++){const pts=wirePoints(circuit.wires[i],i);if(pts)markup+='<path class="wireline" data-wire-index="'+i+'" d="'+wirePath(pts)+'"/>'}
+ for(const j of (circuit.junctions||[]))markup+='<circle class="junction-dot" data-junction="'+escapeXml(j.id)+'" cx="'+j.x+'" cy="'+j.y+'" r="6"/><text x="'+(j.x+9)+'" y="'+(j.y-9)+'" fill="#f1c36d" font-size="10">'+escapeXml(j.id)+'</text>';
  for(const key of circuit.grounds){const p=terminalByKey(key);if(p)markup+='<path class="ground" d="M'+p.x+' '+p.y+' v14 m-13 0 h26 m-9 6 h18 m-5 6 h10"/>'}
  if(firstTerminal){const p=terminalByKey(firstTerminal);if(p)markup+='<circle cx="'+p.x+'" cy="'+p.y+'" r="13" fill="none" stroke="#f1c36d" stroke-width="2"/>'}
  const graph=buildNodes();
@@ -106,9 +103,15 @@ function render(){
  $("nodeCount").textContent=buildNodes().roots.size;
  updateInspector();persist();
 }
-function terminalByKey(key){const [id,indexText]=key.split(":");const c=findComponent(id);return c?terminalPoint(c,Number(indexText)):null}
+function terminalByKey(key){if(key.startsWith("J:")){const j=(circuit.junctions||[]).find(x=>x.id===key.slice(2));return j?{x:j.x,y:j.y}:null}const [id,indexText]=key.split(":");const c=findComponent(id);return c?terminalPoint(c,Number(indexText)):null}
+function wirePoints(w,index){const a=terminalByKey(w.a),b=terminalByKey(w.b);if(!a||!b)return null;const routeY=Math.min(a.y,b.y)-48-(index%3)*18;return [a,{x:a.x,y:routeY},{x:b.x,y:routeY},b]}
+function wirePath(points){return points.map((p,i)=>(i?"L":"M")+p.x+" "+p.y).join(" ")}
+function nextJunctionId(){let n=1;while((circuit.junctions||[]).some(j=>j.id==="J"+n))n++;return "J"+n}
+function snapPoint(p){return {x:Math.max(24,Math.min(876,Math.round(p.x/24)*24)),y:Math.max(24,Math.min(476,Math.round(p.y/24)*24))}}
+function projectOnSegment(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,len=dx*dx+dy*dy;if(!len)return {x:a.x,y:a.y,d:Math.hypot(p.x-a.x,p.y-a.y)};const t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/len));const x=a.x+t*dx,y=a.y+t*dy;return {x,y,d:Math.hypot(p.x-x,p.y-y)}}
+function splitWireAt(index,point){const w=circuit.wires[index],pts=wirePoints(w,index);if(!w||!pts)return false;let best=null;for(let i=0;i<pts.length-1;i++){const q=projectOnSegment(point,pts[i],pts[i+1]);if(!best||q.d<best.d)best=q}if(!best||best.d>18)return false;const p=snapPoint(best);if((Math.hypot(p.x-pts[0].x,p.y-pts[0].y)<18)||(Math.hypot(p.x-pts[3].x,p.y-pts[3].y)<18))return false;const id=nextJunctionId(),key="J:"+id;circuit.junctions.push({id,x:p.x,y:p.y});circuit.wires.splice(index,1,{a:w.a,b:key},{a:key,b:w.b});return true}
 function buildNodes(){
- const keys=circuit.components.flatMap(c=>[c.id+":0",c.id+":1"]);
+ const keys=[...circuit.components.flatMap(c=>[c.id+":0",c.id+":1"]),...(circuit.junctions||[]).map(j=>"J:"+j.id)];
  const parent=new Map(keys.map(k=>[k,k]));
  const root=k=>{let p=parent.get(k);if(p!==k){p=root(p);parent.set(k,p)}return p};
  const join=(a,b)=>{if(parent.has(a)&&parent.has(b))parent.set(root(a),root(b))};
@@ -186,6 +189,8 @@ function onTerminal(key){
 $("circuit").addEventListener("click",e=>{
  const terminal=e.target.closest("[data-terminal]");
  if(terminal){onTerminal(terminal.dataset.terminal);return}
+ const junction=e.target.closest("[data-junction]");if(junction){onTerminal("J:"+junction.dataset.junction);return}
+ const wire=e.target.closest("[data-wire-index]");if(wire&&mode==="select"){const svg=$("circuit"),pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse());if(splitWireAt(Number(wire.dataset.wireIndex),p)){$("editorState").textContent="گره انشعاب ساخته شد؛ دو بخش سیم به یک گره مشترک متصل‌اند";render()}else $("editorState").textContent="برای ساخت انشعاب، نزدیک بخش میانی سیم کلیک کنید";return}
  const part=e.target.closest("[data-part]");
  if(part){selected=part.dataset.part;if(mode!=="select")setMode("select");else render()}
 });
@@ -207,7 +212,7 @@ $("deletePart").addEventListener("click",()=>{
  circuit.wires=circuit.wires.filter(w=>!w.a.startsWith(selected+":")&&!w.b.startsWith(selected+":"));
  circuit.grounds=circuit.grounds.filter(k=>!k.startsWith(selected+":"));selected=null;render();
 });
-$("clearCircuit").addEventListener("click",()=>{circuit={components:[],wires:[],grounds:[]};selected=null;render();$("editorState").textContent="مدار خالی ایجاد شد"});
+$("clearCircuit").addEventListener("click",()=>{circuit={components:[],wires:[],grounds:[],junctions:[]};selected=null;render();$("editorState").textContent="مدار خالی ایجاد شد"});
 $("sampleCircuit").addEventListener("click",()=>{circuit=structuredClone(defaultCircuit);selected=null;mode="select";render();$("editorState").textContent="مدار نمونه بارگذاری شد";$("wireMode").classList.remove("active");$("groundMode").classList.remove("active")});
 function restoreHistory(from,to){
  if(!from.length)return;
@@ -260,7 +265,7 @@ $("copyNetlist").addEventListener("click",async()=>{try{await navigator.clipboar
 $("downloadNetlist").addEventListener("click",()=>download("electrolab-circuit.cir",$("netlist").value,"text/plain"));
 $("exportProject").addEventListener("click",()=>download("electrolab-project.json",JSON.stringify(circuit,null,2),"application/json"));
 function download(name,data,type){const blob=new Blob([data],{type});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
-const stored=localStorage.getItem(STORAGE_KEY);if(stored){try{const parsed=JSON.parse(stored);if(Array.isArray(parsed.components)&&Array.isArray(parsed.wires)&&Array.isArray(parsed.grounds))circuit=parsed}catch(e){}}
+const stored=localStorage.getItem(STORAGE_KEY);if(stored){try{const parsed=JSON.parse(stored);if(Array.isArray(parsed.components)&&Array.isArray(parsed.wires)&&Array.isArray(parsed.grounds)){circuit=parsed;if(!Array.isArray(circuit.junctions))circuit.junctions=[]}}catch(e){}}
 const savedApi=localStorage.getItem("electrolab-api-base");$("apiBase").value=savedApi||"http://localhost:8000";
 function base(){return $("apiBase").value.trim().replace(/\/$/,"")}
 function setState(id,text,kind=""){const el=$(id);el.textContent=text;el.className="status "+kind}
