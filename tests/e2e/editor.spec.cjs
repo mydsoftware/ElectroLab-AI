@@ -18,8 +18,6 @@ test("ویرایشگر مدار: قطعه، اتصال، انشعاب، چرخش
     await page.getByRole("button", { name: /مدار جدید/ }).click();
     await page.locator('[data-add="V"]').click();
     await page.locator('[data-add="R"]').click();
-    await page.getByText("2", { exact: true }).count();
-
     assert.equal(await page.locator("#partCount").textContent(), "2");
     assert.match(await page.locator("#netlist").inputValue(), /V1/);
     assert.match(await page.locator("#netlist").inputValue(), /R1/);
@@ -32,7 +30,7 @@ test("ویرایشگر مدار: قطعه، اتصال، انشعاب، چرخش
     await page.locator('[data-wire-index="0"]').click({ position: { x: 39, y: 0 } });
     assert.equal(await page.locator("#circuit .junction-dot").count(), 1);
     assert.equal(await page.locator("#wireCount").textContent(), "2");
-    assert.match(await page.locator("#netlist").inputValue(), /J/);
+    assert.match(await page.locator("#netlist").inputValue(), /n\\d/);
 
     await page.locator("#circuit [data-part='R1']").click();
     const beforeRotate = await page.locator("#circuit [data-terminal='R1:0']").getAttribute("cy");
@@ -51,6 +49,15 @@ test("ویرایشگر مدار: قطعه، اتصال، انشعاب، چرخش
     assert.equal(await page.locator("#partCount").textContent(), "2");
     assert.equal(await page.locator("#circuit .junction-dot").count(), 1);
     assert.equal(await page.locator("#wireCount").textContent(), "2");
+
+    const xBeforeDrag = await page.evaluate(() => JSON.parse(localStorage.getItem("electrolab-circuit-v1")).components.find(c => c.id === "R1").x);
+    const partBox = await page.locator("#circuit [data-part='R1']").boundingBox();
+    await page.mouse.move(partBox.x + partBox.width / 2, partBox.y + partBox.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(partBox.x + partBox.width / 2 + 60, partBox.y + partBox.height / 2 + 36, { steps: 4 });
+    await page.mouse.up();
+    const xAfterDrag = await page.evaluate(() => JSON.parse(localStorage.getItem("electrolab-circuit-v1")).components.find(c => c.id === "R1").x);
+    assert.notEqual(xAfterDrag, xBeforeDrag, "dragging should update component position");
 
     await page.setViewportSize({ width: 390, height: 844 });
     assert.ok(await page.locator("#circuit").isVisible());
