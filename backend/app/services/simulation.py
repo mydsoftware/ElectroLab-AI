@@ -8,7 +8,7 @@ from pathlib import Path
 
 from backend.app.schemas import SimulationEngineStatus, SimulationResult
 
-_NODE = re.compile(r"^[A-Za-z0-9_.$+-]{1,40}$")
+_NODE = re.compile(r"^[A-Za-z0-9_.+-]{1,40}$")
 _VALUE = re.compile(r"^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?[TGMKUNPF]?$", re.I)
 
 def validate_netlist(netlist: str) -> str:
@@ -20,6 +20,10 @@ def validate_netlist(netlist: str) -> str:
     has_end = False
     has_op = False
     for index, line in enumerate(lines):
+        # طبق قالب SPICE، اولین خط عنوان مدار است و اجرا نمی‌شود.
+        if index == 0 and not line.startswith((".", "*")):
+            safe.append("* " + line.replace("\n", " ")[:200])
+            continue
         if line.startswith("*"):
             safe.append(line)
             continue
@@ -32,9 +36,6 @@ def validate_netlist(netlist: str) -> str:
             if directive == ".end":
                 has_end = True
                 safe.append(".end")
-                continue
-            if directive.startswith(".title ") and index == 0:
-                safe.append(line)
                 continue
             raise ValueError(f"دستور SPICE مجاز نیست: {line.split()[0]}")
         if ";" in line or any(ch in line for ch in ("\x60", "$", "|", ">", "<")):
