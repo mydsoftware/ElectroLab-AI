@@ -180,7 +180,7 @@ function onTerminal(key){
  if(firstTerminal===key){firstTerminal=null;render();return}
  const duplicate=circuit.wires.some(w=>(w.a===firstTerminal&&w.b===key)||(w.a===key&&w.b===firstTerminal));
  const graph=buildNodes(),sameNode=graph.root(firstTerminal)===graph.root(key);
- const samePart=firstTerminal.split(":")[0]===key.split(":")[0];
+ const leftId=firstTerminal.split(":")[0],rightId=key.split(":")[0];const samePart=!firstTerminal.startsWith("J:")&&!key.startsWith("J:")&&leftId===rightId;
  if(duplicate||sameNode){firstTerminal=null;$("editorState").textContent=duplicate?"این سیم قبلاً رسم شده است":"این دو ترمینال از قبل در یک گره الکتریکی هستند";render();return}
  if(samePart){firstTerminal=null;$("editorState").textContent="اتصال رد شد: این سیم دو پایه همان قطعه را اتصال کوتاه می‌کند";render();return}
  circuit.wires.push({a:firstTerminal,b:key});
