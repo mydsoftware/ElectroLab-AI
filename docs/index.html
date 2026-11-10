@@ -44,6 +44,7 @@ a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);
  <div class="actions"><button id="runBtn">اجرای شبیه‌سازی ngspice</button><button id="copyNetlist" class="secondary">کپی نت‌لیست</button><button id="downloadNetlist" class="secondary">دریافت فایل CIR</button><button id="exportProject" class="secondary">خروجی پروژه JSON</button></div>
  <div style="margin-top:14px"><div class="toolbar"><h2>خروجی شبیه‌سازی</h2><span id="runState" class="status">آماده اجرا</span></div><pre id="output" class="result">برای اجرای شبیه‌سازی، Backend و ngspice باید در دسترس باشند.</pre>
   <div id="simulationTables" hidden style="margin-top:12px">
+   <div class="actions"><button id="exportResultsCsv" class="secondary">دریافت نتایج CSV</button></div>
    <h3 style="font-size:13px">ولتاژ گره‌ها (ولت)</h3><div style="overflow:auto"><table id="nodeResults" style="width:100%;border-collapse:collapse;font-size:12px;text-align:left;direction:ltr"></table></div>
    <h3 style="font-size:13px;margin-top:12px">جریان شاخه منابع ولتاژ (آمپر)</h3><div style="overflow:auto"><table id="currentResults" style="width:100%;border-collapse:collapse;font-size:12px;text-align:left;direction:ltr"></table></div>
   </div></div>
@@ -282,6 +283,29 @@ async function connect(){
  }catch(err){setState("apiState","اتصال ناموفق: "+err.message,"bad");setState("engineState","موتور در دسترس نیست","bad")}
 }
 $("connectBtn").addEventListener("click",connect);
+let lastSimulationResult=null;
+function csvCell(value){
+ const text=String(value);
+ const safe=/^[=+@-]/.test(text)?"'"+text:text;
+ return '"'+safe.replace(/"/g,'""')+'"';
+}
+function exportSimulationCsv(){
+ if(!lastSimulationResult)return;
+ const rows=[["نوع داده","نام","مقدار","واحد"]];
+ for(const [name,value] of Object.entries(lastSimulationResult.node_voltages||{})){
+  if(Number.isFinite(Number(value)))rows.push(["ولتاژ گره",name,Number(value),"V"]);
+ }
+ for(const [name,value] of Object.entries(lastSimulationResult.branch_currents||{})){
+  if(Number.isFinite(Number(value)))rows.push(["جریان شاخه منبع",name,Number(value),"A"]);
+ }
+ if(rows.length===1)return;
+ const csv="\\uFEFF"+rows.map(row=>row.map(csvCell).join(",")).join("\\r\\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob),link=document.createElement("a");
+ link.href=url;link.download="electrolab-results.csv";document.body.appendChild(link);
+ link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+$("exportResultsCsv").addEventListener("click",exportSimulationCsv);
 function renderMeasurementTable(id,values){
  const table=$(id);const entries=Object.entries(values||{});
  table.innerHTML=entries.length
@@ -290,7 +314,7 @@ function renderMeasurementTable(id,values){
 }
 $("runBtn").addEventListener("click",async()=>{
  const issues=analyzeCircuit(),errors=issues.filter(x=>x.level==="error"),warnings=issues.filter(x=>x.level==="warning");
- $("simulationTables").hidden=true;
+ $("simulationTables").hidden=true;lastSimulationResult=null;
  if(errors.length){
   $("output").textContent="شبیه‌سازی اجرا نشد؛ ابتدا خطاهای ساختاری مدار را برطرف کنید:\n"+errors.map(x=>"• "+x.text).join("\n");
   setState("runState",errors.length+" خطای ساختاری · اجرای مسدود شد","bad");
@@ -305,6 +329,7 @@ $("runBtn").addEventListener("click",async()=>{
   const response=await fetch(base()+"/api/v1/simulations/ngspice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({netlist:$("netlist").value,timeout_seconds:10})});
   const data=await response.json();if(!response.ok)throw new Error(data.detail||"خطای شبیه‌سازی");
   $("output").textContent=data.output||data.message;
+  lastSimulationResult=data;
   renderMeasurementTable("nodeResults",data.node_voltages);
   renderMeasurementTable("currentResults",data.branch_currents);
   $("simulationTables").hidden=data.status!=="COMPLETED";
