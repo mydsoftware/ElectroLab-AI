@@ -148,6 +148,17 @@ test("اجرای شبیه‌سازی: خطای ساختاری مسدود و نت
     assert.match(await page.locator("#nodeResults").innerText(), /n1/);
     assert.match(await page.locator("#nodeResults").innerText(), /5\.000000e\+0/);
     assert.match(await page.locator("#currentResults").innerText(), /v1#branch/);
+    const downloadPromise = page.waitForEvent("download");
+    await page.locator("#exportResultsCsv").click();
+    const download = await downloadPromise;
+    assert.equal(download.suggestedFilename(), "electrolab-results.csv");
+    const stream = await download.createReadStream();
+    let csv = "";
+    for await (const chunk of stream) csv += chunk.toString("utf8");
+    assert.match(csv, /ولتاژ گره/);
+    assert.match(csv, /n1/);
+    assert.match(csv, /جریان شاخه منبع/);
+    assert.match(csv, /v1#branch/);
   } finally {
     await browser.close();
   }
