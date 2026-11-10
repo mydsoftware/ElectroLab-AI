@@ -62,6 +62,8 @@ class SimulationResult(BaseModel):
     output: str
     elapsed_ms: int
     message: str
+    node_voltages: dict[str, float] = Field(default_factory=dict)
+    branch_currents: dict[str, float] = Field(default_factory=dict)
 
 class ProjectCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
