@@ -56,6 +56,7 @@ a{color:var(--cyan);text-decoration:none}.foot{border-top:1px solid var(--line);
 <footer class="foot">ElectroLab AI · <a href="https://github.com/mydsoftware/ElectroLab-AI">مخزن GitHub</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/NGSPICE.fa.md">راهنمای Backend</a> · <a href="https://github.com/mydsoftware/ElectroLab-AI/blob/main/docs/ARCHITECTURE.fa.md">معماری</a></footer>
 </main>
 <script src="./router.js"></script>
+<script src="./validator.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const STORAGE_KEY="electrolab-circuit-v1";
@@ -129,18 +130,7 @@ function buildNodes(){
  for(const k of keys){const r=root(k);if(!members.has(r))members.set(r,[]);members.get(r).push(k)}
  return {root,names,roots,grounded,members,node:key=>names.get(root(key))||"0"};
 }
-function analyzeCircuit(graph=buildNodes()){
- const issues=[],degree=new Map();
- for(const c of circuit.components){degree.set(c.id+":0",0);degree.set(c.id+":1",0)}
- for(const w of circuit.wires){if(degree.has(w.a))degree.set(w.a,degree.get(w.a)+1);if(degree.has(w.b))degree.set(w.b,degree.get(w.b)+1)}
- for(const c of circuit.components){
-  if(graph.root(c.id+":0")===graph.root(c.id+":1"))issues.push({level:"error",text:c.id+" اتصال کوتاه شده است؛ دو پایه قطعه در یک گره قرار دارند."});
-  for(let i=0;i<2;i++){const k=c.id+":"+i;if(degree.get(k)===0&&!circuit.grounds.includes(k))issues.push({level:"warning",text:k+" آزاد است و به سیم یا زمین متصل نیست."})}
- }
- const seen=new Set();for(const w of circuit.wires){const pair=[w.a,w.b].sort().join("|");if(seen.has(pair)){issues.push({level:"warning",text:"اتصال سیم تکراری در مدار وجود دارد."});break}seen.add(pair)}
- if(circuit.components.length&&!circuit.grounds.length)issues.push({level:"warning",text:"هیچ گره مرجعی به زمین (۰) متصل نشده است."});
- return issues;
-}
+function analyzeCircuit(){return ElectroLabValidator.analyze(circuit)}
 function updateGraphDiagnostics(graph){
  const issues=analyzeCircuit(graph),el=$("graphIssues"),status=$("graphStatus");
  el.innerHTML=issues.length?issues.map(x=>'<li class="'+(x.level==="error"?"bad":"warn")+'">'+escapeXml(x.text)+'</li>').join(""):"<li class='ok'>اتصالات پایه‌ای بدون خطای شناسایی‌شده هستند.</li>";
