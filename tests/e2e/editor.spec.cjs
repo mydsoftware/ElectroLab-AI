@@ -107,3 +107,48 @@ test("پنل اعتبارسنجی خطاهای الکتریکی را در راب
     await browser.close();
   }
 });
+
+test("اجرای شبیه‌سازی: خطای ساختاری مسدود و نتایج API در جدول نمایش داده می‌شوند", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  let simulationRequests = 0;
+  try {
+    await page.goto(process.env.ELECTROLAB_BASE_URL || "http://127.0.0.1:4173/", { waitUntil: "networkidle" });
+    await page.evaluate(() => localStorage.setItem("electrolab-circuit-v1", JSON.stringify({
+      components: [{ id: "R1", type: "R", value: "1k", x: 240, y: 180 }],
+      wires: [{ a: "R1:0", b: "R1:1" }], grounds: [], junctions: []
+    })));
+    await page.reload({ waitUntil: "networkidle" });
+    await page.locator("#runBtn").click();
+    assert.match(await page.locator("#runState").innerText(), /اجرا مسدود شد/);
+    assert.match(await page.locator("#output").innerText(), /خطاهای ساختاری/);
+    assert.equal(simulationRequests, 0);
+
+    await page.evaluate(() => localStorage.setItem("electrolab-circuit-v1", JSON.stringify({
+      components: [
+        { id: "V1", type: "V", value: "5", x: 180, y: 220 },
+        { id: "R1", type: "R", value: "1k", x: 510, y: 220 }
+      ],
+      wires: [{ a: "V1:0", b: "R1:0" }, { a: "R1:1", b: "V1:1" }],
+      grounds: ["V1:1"], junctions: []
+    })));
+    await page.route("**/api/v1/simulations/ngspice", async route => {
+      simulationRequests++;
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({
+        engine: "ngspice", status: "COMPLETED", output: "Operating point fixture",
+        elapsed_ms: 12, message: "ok",
+        node_voltages: { n1: 5, "0": 0 },
+        branch_currents: { "v1#branch": -0.005 }
+      }) });
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    await page.locator("#runBtn").click();
+    await page.waitForFunction(() => document.querySelector("#simulationTables").hidden === false);
+    assert.equal(simulationRequests, 1);
+    assert.match(await page.locator("#nodeResults").innerText(), /n1/);
+    assert.match(await page.locator("#nodeResults").innerText(), /5\.000000e\+0/);
+    assert.match(await page.locator("#currentResults").innerText(), /v1#branch/);
+  } finally {
+    await browser.close();
+  }
+});
