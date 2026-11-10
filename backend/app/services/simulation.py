@@ -85,8 +85,8 @@ def parse_operating_point(output: str) -> tuple[dict[str, float], dict[str, floa
     nodes: dict[str, float] = {}
     currents: dict[str, float] = {}
     value_pattern = re.compile(
-        r"^\\s*([A-Za-z][A-Za-z0-9_.+#-]{0,79})\\s+"
-        r"([-+]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][-+]?\\d+)?)\\s*$"
+        r"^\s*([A-Za-z][A-Za-z0-9_.+#-]{0,79})\s+"
+        r"([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)\s*$"
     )
     for line in output.splitlines():
         heading = line.strip().lower()
