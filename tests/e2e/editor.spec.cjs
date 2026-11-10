@@ -83,3 +83,27 @@ test("ویرایشگر مدار: قطعه، اتصال، انشعاب، چرخش
     await browser.close();
   }
 });
+
+test("پنل اعتبارسنجی خطاهای الکتریکی را در رابط نمایش می‌دهد", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  try {
+    await page.goto(process.env.ELECTROLAB_BASE_URL || "http://127.0.0.1:4173/", { waitUntil: "networkidle" });
+    await page.evaluate(() => {
+      localStorage.setItem("electrolab-circuit-v1", JSON.stringify({
+        components: [{ id: "R1", type: "R", value: "invalid", x: 240, y: 180 }],
+        wires: [{ a: "R1:0", b: "R1:1" }],
+        grounds: [],
+        junctions: []
+      }));
+    });
+    await page.reload({ waitUntil: "networkidle" });
+    const issues = await page.locator("#graphIssues").innerText();
+    assert.match(issues, /اتصال کوتاه/);
+    assert.match(issues, /مقدار قطعه R1 معتبر نیست/);
+    assert.match(issues, /زمین/);
+    assert.match(await page.locator("#graphStatus").innerText(), /خطای اتصال/);
+  } finally {
+    await browser.close();
+  }
+});
