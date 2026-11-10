@@ -2,7 +2,7 @@
   "use strict";
 
   const TYPES = new Set(["R", "C", "L", "V", "I"]);
-  const VALUE = /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?[TGMKUNPF]$/i;
+  const VALUE = /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?[TGMKUNPF]?$/i;
 
   function analyze(circuit) {
     const issues = [];
