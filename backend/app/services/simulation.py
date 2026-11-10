@@ -79,6 +79,42 @@ def ngspice_status() -> SimulationEngineStatus:
         return SimulationEngineStatus(engine="ngspice", available=False,
             details=f"بررسی نسخه موتور ناموفق بود: {exc.__class__.__name__}")
 
+def parse_operating_point(output: str) -> tuple[dict[str, float], dict[str, float]]:
+    """مقادیر نقطه‌کار را فقط از بخش‌های شناخته‌شده خروجی ngspice استخراج می‌کند."""
+    section = None
+    nodes: dict[str, float] = {}
+    currents: dict[str, float] = {}
+    value_pattern = re.compile(
+        r"^\\s*([A-Za-z][A-Za-z0-9_.+#-]{0,79})\\s+"
+        r"([-+]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][-+]?\\d+)?)\\s*$"
+    )
+    for line in output.splitlines():
+        heading = line.strip().lower()
+        if "node voltage" in heading:
+            section = "nodes"
+            continue
+        if "voltage source currents" in heading or "source currents" in heading:
+            section = "currents"
+            continue
+        if section and (not heading or set(heading) <= {"-", "="}):
+            continue
+        if section:
+            match = value_pattern.match(line)
+            if match:
+                name, raw = match.groups()
+                try:
+                    value = float(raw)
+                except ValueError:
+                    continue
+                if section == "nodes":
+                    nodes[name] = value
+                else:
+                    currents[name] = value
+            elif line.strip() and not line.lstrip()[0].isalnum():
+                section = None
+    return nodes, currents
+
+
 def simulate_netlist(netlist: str, timeout_seconds: int = 10) -> SimulationResult:
     safe_netlist = validate_netlist(netlist)
     executable = shutil.which("ngspice")
@@ -100,6 +136,8 @@ def simulate_netlist(netlist: str, timeout_seconds: int = 10) -> SimulationResul
             return SimulationResult(engine="ngspice", status="ERROR",
                 output=output, elapsed_ms=elapsed,
                 message="ngspice مدار را با خطا متوقف کرد.")
+        node_voltages, branch_currents = parse_operating_point(output)
         return SimulationResult(engine="ngspice", status="COMPLETED",
             output=output, elapsed_ms=elapsed,
-            message="تحلیل نقطه‌کار با موفقیت اجرا شد.")
+            message="تحلیل نقطه‌کار با موفقیت اجرا شد.",
+            node_voltages=node_voltages, branch_currents=branch_currents)
