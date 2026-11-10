@@ -120,7 +120,7 @@ test("اجرای شبیه‌سازی: خطای ساختاری مسدود و نت
     })));
     await page.reload({ waitUntil: "networkidle" });
     await page.locator("#runBtn").click();
-    assert.match(await page.locator("#runState").innerText(), /اجرا مسدود شد/);
+    assert.match(await page.locator("#runState").innerText(), /اجرای مسدود شد/);
     assert.match(await page.locator("#output").innerText(), /خطاهای ساختاری/);
     assert.equal(simulationRequests, 0);
 
