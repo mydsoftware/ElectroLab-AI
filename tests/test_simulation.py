@@ -48,3 +48,54 @@ v1#branch -2.500000e-03
 
 def test_parse_operating_point_returns_empty_for_unavailable_sections():
     assert parse_operating_point("ngspice completed without an operating point table") == ({}, {})
+
+
+def test_parser_accepts_signed_scientific_values_and_whitespace():
+    output = """Operating Point
+Node Voltage
+------------
+  input  +5.000000e+00
+  output -2.5e-1
+Voltage source currents
+-----------------------
+  VMAIN#branch -1.250e-03
+"""
+    nodes, currents = parse_operating_point(output)
+    assert nodes == {"input": 5.0, "output": -0.25}
+    assert currents == {"VMAIN#branch": -0.00125}
+
+
+def test_parser_stops_at_unrecognized_section_and_does_not_capture_its_numbers():
+    output = """Node Voltage
+------------
+in 5.0
+Device operating summary
+sensor_reading 999.0
+Voltage source currents
+-----------------------
+V1#branch -0.005
+"""
+    nodes, currents = parse_operating_point(output)
+    assert nodes == {"in": 5.0}
+    assert currents == {"V1#branch": -0.005}
+
+
+def test_parser_ignores_malformed_and_non_finite_rows():
+    output = """Node Voltage
+------------
+good 1.25
+bad nan
+also_bad inf
+not_a_value
+Voltage source currents
+-----------------------
+V1#branch 2.0e-3
+"""
+    nodes, currents = parse_operating_point(output)
+    assert nodes == {"good": 1.25}
+    assert currents == {"V1#branch": 0.002}
+
+
+def test_parser_handles_empty_and_unrelated_output():
+    assert parse_operating_point("") == ({}, {})
+    assert parse_operating_point("Error: singular matrix\\nNo operating point") == ({}, {})
