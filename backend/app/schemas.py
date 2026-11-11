@@ -11,23 +11,23 @@ class TestStatus(str, Enum):
 
 class Measurement(BaseModel):
     name: str = Field(min_length=1, max_length=100)
-    value: float
+    value: float = Field(allow_inf_nan=False)
     unit: str = Field(default="", max_length=24)
 
 class TestScenario(BaseModel):
     test_id: str = Field(min_length=1, max_length=80)
     description: str = Field(default="", max_length=500)
     measurement_name: str = Field(min_length=1, max_length=100)
-    expected: float
-    tolerance: float = Field(default=0, ge=0)
+    expected: float = Field(allow_inf_nan=False)
+    tolerance: float = Field(default=0, ge=0, allow_inf_nan=False)
     unit: str = Field(default="", max_length=24)
 
 class TestEvaluation(BaseModel):
     test_id: str
     status: TestStatus
-    expected: float
-    actual: float
-    tolerance: float
+    expected: float = Field(allow_inf_nan=False)
+    actual: float = Field(allow_inf_nan=False)
+    tolerance: float = Field(allow_inf_nan=False, ge=0)
     unit: str
     message: str
 
@@ -64,6 +64,14 @@ class SimulationResult(BaseModel):
     message: str
     node_voltages: dict[str, float] = Field(default_factory=dict)
     branch_currents: dict[str, float] = Field(default_factory=dict)
+
+    @field_validator("node_voltages", "branch_currents")
+    @classmethod
+    def values_must_be_finite(cls, values: dict[str, float]) -> dict[str, float]:
+        import math
+        if any(not math.isfinite(value) for value in values.values()):
+            raise ValueError("مقادیر نتایج باید عدد محدود و معتبر باشند.")
+        return values
 
 class ProjectCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
