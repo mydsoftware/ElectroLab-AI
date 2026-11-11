@@ -110,7 +110,9 @@ def parse_operating_point(output: str) -> tuple[dict[str, float], dict[str, floa
                     nodes[name] = value
                 else:
                     currents[name] = value
-            elif line.strip() and not line.lstrip()[0].isalnum():
+            elif line.strip():
+                # پس از اولین سطر غیرعددی، بخش جاری تمام شده است؛
+                # از برداشت تصادفی اعداد گزارش‌های دیگر جلوگیری می‌کنیم.
                 section = None
     return nodes, currents
 
