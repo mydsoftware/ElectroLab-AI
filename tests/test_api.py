@@ -33,3 +33,14 @@ def test_simulation_requires_engine(monkeypatch):
     response = client.post("/api/v1/simulations/ngspice", json={
         "netlist": "V1 in 0 5\nR1 in 0 1k\n.op\n.end"})
     assert response.status_code == 503
+
+
+import pytest
+
+
+@pytest.mark.parametrize("actual", ["nan", "inf", "-inf"])
+def test_evaluate_endpoint_rejects_non_finite_actual(actual):
+    response = client.post(f"/api/v1/tests/evaluate?actual={actual}", json={
+        "test_id": "vcc", "measurement_name": "VCC", "expected": 3.3,
+        "tolerance": 0.1, "unit": "V"})
+    assert response.status_code == 422
