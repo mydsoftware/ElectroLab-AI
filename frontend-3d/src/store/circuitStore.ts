@@ -1,16 +1,25 @@
 import { create } from 'zustand'
-import type { CircuitState, ComponentType, PlacedComponent, Wire } from '../types/circuit'
+import type {
+  AppMode,
+  CircuitState,
+  PlacedComponent,
+  SimResult,
+  Wire,
+} from '../types/circuit'
 
 interface CircuitStore extends CircuitState {
-  setMode: (mode: CircuitState['mode']) => void
-  setPlacingType: (type: ComponentType | null) => void
+  setMode: (mode: AppMode) => void
   addComponent: (component: PlacedComponent) => void
   removeComponent: (id: string) => void
   updateComponent: (id: string, updates: Partial<PlacedComponent>) => void
   addWire: (wire: Wire) => void
   removeWire: (id: string) => void
   select: (id: string | null) => void
+  setWireStart: (holeId: string | null) => void
   clearAll: () => void
+  setSimulating: (v: boolean) => void
+  setLastSim: (r: SimResult | null) => void
+  applyLedStates: (states: Record<string, boolean>) => void
 }
 
 export const useCircuitStore = create<CircuitStore>((set) => ({
@@ -18,24 +27,21 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
   wires: [],
   selectedId: null,
   mode: 'select',
-  placingType: null,
+  wireStartHoleId: null,
+  simulating: false,
+  lastSim: null,
 
-  setMode: (mode) => set({ mode, placingType: mode === 'place' ? null : null }),
-  setPlacingType: (type) => set({ placingType: type, mode: type ? 'place' : 'select' }),
+  setMode: (mode) =>
+    set({ mode, wireStartHoleId: null }),
 
   addComponent: (component) =>
     set((state) => ({
       components: [...state.components, component],
-      mode: 'select',
-      placingType: null,
     })),
 
   removeComponent: (id) =>
     set((state) => ({
       components: state.components.filter((c) => c.id !== id),
-      wires: state.wires.filter(
-        (w) => w.from.componentId !== id && w.to.componentId !== id
-      ),
       selectedId: state.selectedId === id ? null : state.selectedId,
     })),
 
@@ -49,6 +55,7 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
   addWire: (wire) =>
     set((state) => ({
       wires: [...state.wires, wire],
+      wireStartHoleId: null,
     })),
 
   removeWire: (id) =>
@@ -58,12 +65,29 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
 
   select: (id) => set({ selectedId: id }),
 
+  setWireStart: (holeId) => set({ wireStartHoleId: holeId }),
+
   clearAll: () =>
     set({
       components: [],
       wires: [],
       selectedId: null,
       mode: 'select',
-      placingType: null,
+      wireStartHoleId: null,
+      lastSim: null,
     }),
+
+  setSimulating: (v) => set({ simulating: v }),
+
+  setLastSim: (r) => set({ lastSim: r }),
+
+  applyLedStates: (states) =>
+    set((state) => ({
+      components: state.components.map((c) => {
+        if (c.type !== 'led') return c
+        const lit = states[c.id]
+        if (lit === undefined) return c
+        return { ...c, props: { ...c.props, lit } }
+      }),
+    })),
 }))

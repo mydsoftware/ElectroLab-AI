@@ -1,29 +1,28 @@
-export type ComponentType = 'resistor' | 'led' | 'capacitor' | 'power' | 'wire'
+export type ComponentType = 'resistor' | 'led' | 'capacitor' | 'power'
 
 export interface Pin {
   id: string
-  /** Local position relative to component center */
   position: [number, number, number]
-  /** Connected breadboard hole id, if any */
   holeId?: string
+  col?: number
+  row?: number
 }
 
 export interface PlacedComponent {
   id: string
   type: ComponentType
-  /** World position on the breadboard */
   position: [number, number, number]
   rotation: [number, number, number]
-  /** Component-specific properties */
-  props: Record<string, string | number>
+  props: Record<string, string | number | boolean>
   pins: Pin[]
 }
 
 export interface Wire {
   id: string
-  from: { componentId: string; pinId: string }
-  to: { componentId: string; pinId: string }
-  points?: [number, number, number][]
+  fromHoleId: string
+  toHoleId: string
+  fromPos: [number, number, number]
+  toPos: [number, number, number]
   color: string
 }
 
@@ -35,10 +34,22 @@ export interface BreadboardHole {
   netId: string
 }
 
+export type AppMode = 'select' | 'wire'
+
+export interface SimResult {
+  ok: boolean
+  message: string
+  nodeVoltages?: Record<string, number>
+  ledStates?: Record<string, boolean>
+  netlist?: string
+}
+
 export interface CircuitState {
   components: PlacedComponent[]
   wires: Wire[]
   selectedId: string | null
-  mode: 'select' | 'place' | 'wire'
-  placingType: ComponentType | null
+  mode: AppMode
+  wireStartHoleId: string | null
+  simulating: boolean
+  lastSim: SimResult | null
 }
