@@ -1,9 +1,31 @@
+import { useEffect } from 'react'
 import { Scene } from './components/Scene'
 import { Toolbar } from './components/Toolbar'
 import { useCircuitStore } from './store/circuitStore'
 
 export default function App() {
   const mode = useCircuitStore((s) => s.mode)
+  const setMode = useCircuitStore((s) => s.setMode)
+  const removeComponent = useCircuitStore((s) => s.removeComponent)
+  const selectedId = useCircuitStore((s) => s.selectedId)
+  const rotateSelected = useCircuitStore((s) => s.rotateSelected)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return
+
+      if (e.key === 'w' || e.key === 'W') setMode('wire')
+      if (e.key === 'v' || e.key === 'V' || e.key === 'Escape') setMode('select')
+      if (e.key === 'r' || e.key === 'R') rotateSelected()
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+        e.preventDefault()
+        removeComponent(selectedId)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [setMode, rotateSelected, removeComponent, selectedId])
 
   return (
     <div className="relative w-full h-full">
@@ -19,13 +41,13 @@ export default function App() {
         </div>
       </div>
 
-      <div className="absolute bottom-4 left-4 z-10 text-xs text-slate-400 bg-slate-900/70 px-3 py-2 rounded-lg max-w-md leading-relaxed">
+      <div className="absolute bottom-4 left-4 z-10 text-xs text-slate-400 bg-slate-900/70 px-3 py-2 rounded-lg max-w-lg leading-relaxed">
         {mode === 'wire' ? (
           <>
-            <span className="text-amber-400 font-medium">حالت سیم‌کشی:</span> روی سوراخ اول کلیک کنید، بعد سوراخ دوم.
+            <span className="text-amber-400 font-medium">سیم‌کشی:</span> دو سوراخ را کلیک کنید · Esc خروج
           </>
         ) : (
-          <>چرخش: کلیک چپ + درگ · زوم: اسکرول · جابه‌جایی قطعه: درگ · سیم: دکمه سیم‌کشی</>
+          <>W سیم · R چرخش · Del حذف · درگ قطعه برای جابه‌جایی</>
         )}
       </div>
     </div>
