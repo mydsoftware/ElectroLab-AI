@@ -3,12 +3,15 @@ import { OrbitControls, Environment, ContactShadows, Grid } from '@react-three/d
 import { Breadboard } from './Breadboard'
 import { Resistor } from './components/Resistor'
 import { LED } from './components/LED'
+import { Power } from './components/Power'
 import { Draggable } from './Draggable'
+import { Wires } from './Wires'
+import { HolePickers } from './HolePickers'
 import { useCircuitStore } from '../store/circuitStore'
 import { Suspense } from 'react'
 
 function CircuitComponents() {
-  const { components, selectedId } = useCircuitStore()
+  const { components, selectedId, mode } = useCircuitStore()
 
   return (
     <>
@@ -36,8 +39,26 @@ function CircuitComponents() {
               />
             )
           }
+          if (comp.type === 'power') {
+            return (
+              <Power
+                position={[0, 0, 0]}
+                rotation={comp.rotation}
+                voltage={Number(comp.props.voltage || 5)}
+                selected={isSelected}
+              />
+            )
+          }
           return null
         })()
+
+        if (mode === 'wire') {
+          return (
+            <group key={comp.id} position={comp.position}>
+              {content}
+            </group>
+          )
+        }
 
         return (
           <Draggable key={comp.id} id={comp.id} position={comp.position}>
@@ -51,13 +72,16 @@ function CircuitComponents() {
 
 export function Scene() {
   const select = useCircuitStore((s) => s.select)
+  const mode = useCircuitStore((s) => s.mode)
 
   return (
     <div className="w-full h-full">
       <Canvas
         shadows
         camera={{ position: [4, 5, 6], fov: 45 }}
-        onPointerMissed={() => select(null)}
+        onPointerMissed={() => {
+          if (mode === 'select') select(null)
+        }}
       >
         <color attach="background" args={['#0f172a']} />
         <ambientLight intensity={0.45} />
@@ -77,6 +101,8 @@ export function Scene() {
         <Suspense fallback={null}>
           <Breadboard />
           <CircuitComponents />
+          <Wires />
+          <HolePickers />
           <ContactShadows position={[0, -0.02, 0]} opacity={0.4} scale={12} blur={2.5} far={4} />
           <Grid
             position={[0, -0.03, 0]}
