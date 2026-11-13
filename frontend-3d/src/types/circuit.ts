@@ -42,6 +42,7 @@ export interface SimResult {
   nodeVoltages?: Record<string, number>
   ledStates?: Record<string, boolean>
   netlist?: string
+  fromBackend?: boolean
 }
 
 export interface CircuitState {
