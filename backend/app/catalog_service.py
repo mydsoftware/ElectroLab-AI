@@ -17,22 +17,28 @@ def _catalog_dir() -> Path:
         here.parent.parent / "data" / "catalog",
     ]
     for p in candidates:
-        if (p / "components.json").exists():
+        if (p / "components.json").exists() or (p / "components_part1.json").exists():
             return p
     return candidates[0]
+
+
+def _load_json_list(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 @lru_cache(maxsize=1)
 def _load_all() -> tuple[list[dict], list[dict], list[dict]]:
     base = _catalog_dir()
-
-    def load(name: str) -> list[dict]:
-        path = base / name
-        if not path.exists():
-            return []
-        return json.loads(path.read_text(encoding="utf-8"))
-
-    return load("categories.json"), load("platforms.json"), load("components.json")
+    cats = _load_json_list(base / "categories.json")
+    plats = _load_json_list(base / "platforms.json")
+    comps = _load_json_list(base / "components.json")
+    if not comps:
+        comps = _load_json_list(base / "components_part1.json") + _load_json_list(
+            base / "components_part2.json"
+        )
+    return cats, plats, comps
 
 
 def list_categories() -> list[Category]:
