@@ -1,39 +1,20 @@
-# توسعه با C++ آردوینو در ElectroLab
+# MCU C++ آردوینو — تکمیل
 
-## نحوه کار
+## قابلیت‌ها
 
-پنل **MCU · توسعه C++** → تب **C++ آردوینو** → نوشتن `setup` / `loop` → **کامپایل و اجرای C++**
+- ویرایشگر C++ با setup/loop
+- **دانلود .ino** برای Arduino IDE واقعی
+- `analogRead(A0)` از **پتانسیومتر** مجازی (اسلایدر 0–1023)
+- `map` / `constrain` / `random` / `tone`
+- دکمه دیجیتال + LED چندتایی (اتصال خودکار پایه‌ها)
 
-این یک **زیرمجموعه آموزشی** است (نه gcc کامل). برای نمونه‌سازی آزمایشگاه و یادگیری کافی است.
+## تست آنالوگ
 
-## API پشتیبانی‌شده
+1. پتانسیومتر بگذار (پایه ۱۴ = A0)
+2. LED بگذار
+3. مثال «آنالوگ A0 → LED» را کامپایل کن
+4. اسلایدر پتانسیومتر را حرکت بده → آستانه ۵۱۲ LED را عوض می‌کند
 
-- `void setup()` / `void loop()`
-- `pinMode(pin, INPUT|OUTPUT|INPUT_PULLUP)`
-- `digitalWrite` / `digitalRead` / `analogWrite`
-- `millis()` / `delay(ms)`
-- `Serial.begin` / `print` / `println`
-- `#define`، متغیرهای `int` / `bool` / `byte`
-- `HIGH` / `LOW`
+## خروجی واقعی
 
-## اتصال به سخت‌افزار مجازی
-
-- LED با «پایه آردوینو» از `digitalWrite` روشن می‌شود
-- دکمه با پایه ورودی مقدار `digitalRead` را می‌دهد
-
-## مثال Blink
-
-```cpp
-#define LED_PIN 13
-
-void setup() {
-  pinMode(LED_PIN, OUTPUT);
-}
-
-void loop() {
-  digitalWrite(LED_PIN, HIGH);
-  delay(500);
-  digitalWrite(LED_PIN, LOW);
-  delay(500);
-}
-```
+دکمه **.ino** کد را برای برد فیزیکی دانلود می‌کند.
