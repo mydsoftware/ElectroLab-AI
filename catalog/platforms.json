@@ -1,0 +1,15 @@
+[
+  {"id": "generic", "name_fa": "عمومی (بدون کنترلر)", "name_en": "Generic", "family": "Generic", "package": null},
+  {"id": "arduino-uno", "name_fa": "آردوینو اونو", "name_en": "Arduino Uno", "family": "AVR", "package": "Uno R3", "mcu": "atmega328p"},
+  {"id": "arduino-nano", "name_fa": "آردوینو نانو", "name_en": "Arduino Nano", "family": "AVR", "package": "Nano", "mcu": "atmega328p"},
+  {"id": "arduino-mega", "name_fa": "آردوینو مگا ۲۵۶۰", "name_en": "Arduino Mega 2560", "family": "AVR", "package": "Mega", "mcu": "atmega2560"},
+  {"id": "atmega328p", "name_fa": "میکروکنترلر ATmega328P", "name_en": "ATmega328P", "family": "AVR", "package": "DIP-28 / TQFP"},
+  {"id": "atmega2560", "name_fa": "میکروکنترلر ATmega2560", "name_en": "ATmega2560", "family": "AVR", "package": "TQFP-100"},
+  {"id": "attiny85", "name_fa": "ATtiny85", "name_en": "ATtiny85", "family": "AVR", "package": "DIP-8"},
+  {"id": "esp32", "name_fa": "ESP32", "name_en": "ESP32", "family": "ESP32", "package": "DevKit / Module"},
+  {"id": "esp32-c3", "name_fa": "ESP32-C3", "name_en": "ESP32-C3", "family": "ESP32", "package": "DevKit"},
+  {"id": "esp8266", "name_fa": "ESP8266", "name_en": "ESP8266", "family": "ESP8266", "package": "NodeMCU / Module"},
+  {"id": "stm32-f1", "name_fa": "STM32 سری F1", "name_en": "STM32F1", "family": "STM32", "package": "Blue Pill / LQFP"},
+  {"id": "rp2040", "name_fa": "Raspberry Pi Pico (RP2040)", "name_en": "RP2040 / Pico", "family": "RP2040", "package": "Pico"},
+  {"id": "raspberry-pi", "name_fa": "رزبری پای", "name_en": "Raspberry Pi", "family": "Linux-SBC", "package": "SBC"}
+]
