@@ -1,32 +1,22 @@
 # کاتالوگ قطعات ElectroLab
 
-## آمار seed فعلی
+هر قطعه شامل:
 
-- **۱۵۳ قطعه** در `components.json` (محلی) / `components_batch_*.json`
-- **۳۲ دسته** در `categories.json`
-- **۱۳ پلتفرم** در `platforms.json`
+- **کاربرد فارسی** (`description_fa` / `usage_fa`)
+- **لینک دیتاشیت** (`datasheet_url`)
+- دسته، پلتفرم سازگار، پایه‌ها و تگ‌ها
 
-## انواع
+## آمار
 
-| kind | تعداد تقریبی |
-|------|-------------|
-| discrete | ۵۷ |
-| sensor | ۲۷ |
-| module | ۲۲ |
-| power | ۱۲ |
-| board / mcu | ۱۵ |
-| display | ۹ |
-| connector | ۱۱ |
+- ۱۵۳ قطعه با کاربرد و دیتاشیت
+- ۳۲ دسته
+- ۱۳ پلتفرم (Arduino، ATmega، ESP، STM32، Pico، …)
 
-## پلتفرم‌ها
-
-arduino-uno, arduino-nano, arduino-mega, atmega328p, atmega2560, attiny85, esp32, esp32-c3, esp8266, stm32-f1, rp2040, raspberry-pi, generic
-
-## API
+## نمونه API
 
 ```
+GET /api/v1/catalog/components?q=dht
 GET /api/v1/catalog/components?platform_id=arduino-uno
-GET /api/v1/catalog/components?category_id=sensors&q=dht
 ```
 
-فایل کامل seed در توسعه محلی: `catalog/components.json`
+فایل کامل seed: `catalog/components.json`

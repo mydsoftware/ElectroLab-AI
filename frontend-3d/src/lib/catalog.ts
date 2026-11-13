@@ -31,6 +31,8 @@ export interface CatalogComponent {
   pins?: { id: string; name: string }[]
   tags?: string[]
   description_fa?: string
+  usage_fa?: string
+  datasheet_url?: string | null
 }
 
 const API_BASE =
@@ -59,7 +61,7 @@ export function filterComponents(
     if (opts.platformId && !c.compatible_platforms.includes(opts.platformId)) return false
     if (opts.kind && c.component_kind !== opts.kind) return false
     if (q) {
-      const blob = [c.id, c.name_fa, c.name_en, ...(c.tags || []), c.description_fa || ''].join(' ').toLowerCase()
+      const blob = [c.id, c.name_fa, c.name_en, ...(c.tags || []), c.description_fa || '', c.usage_fa || ''].join(' ').toLowerCase()
       if (!blob.includes(q)) return false
     }
     return true
