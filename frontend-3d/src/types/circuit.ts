@@ -1,4 +1,13 @@
-export type ComponentType = 'resistor' | 'led' | 'capacitor' | 'power'
+export type ComponentType =
+  | 'resistor'
+  | 'led'
+  | 'capacitor'
+  | 'power'
+  | 'transistor'
+  | 'ic'
+  | 'sensor'
+  | 'module'
+  | 'display'
 
 export interface Pin {
   id: string
@@ -15,6 +24,8 @@ export interface PlacedComponent {
   rotation: [number, number, number]
   props: Record<string, string | number | boolean>
   pins: Pin[]
+  catalogId?: string
+  label?: string
 }
 
 export interface Wire {
