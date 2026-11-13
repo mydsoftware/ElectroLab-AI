@@ -17,7 +17,7 @@ def _catalog_dir() -> Path:
         here.parent.parent / "data" / "catalog",
     ]
     for p in candidates:
-        if (p / "components.json").exists() or (p / "components_part1.json").exists():
+        if (p / "components.json").exists() or (p / "components_part0.json").exists() or (p / "components_part1.json").exists():
             return p
     return candidates[0]
 
@@ -28,17 +28,49 @@ def _load_json_list(path: Path) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _load_components(base: Path) -> list[dict]:
+    full = _load_json_list(base / "components.json")
+    if full:
+        return full
+    comps: list[dict] = []
+    for name in [
+        "components_part0.json",
+        "components_part1.json",
+        "components_part2.json",
+        "components_part3.json",
+        "components_part1.json",  # legacy names
+        "components_part2.json",
+    ]:
+        # unique paths only once
+        pass
+    seen = set()
+    for i in range(0, 8):
+        for prefix in ("components_part", "components_p"):
+            path = base / f"{prefix}{i}.json"
+            if path.exists() and str(path) not in seen:
+                seen.add(str(path))
+                comps.extend(_load_json_list(path))
+    # also legacy
+    for name in ("components_part1.json", "components_part2.json"):
+        path = base / name
+        if path.exists() and str(path) not in seen:
+            seen.add(str(path))
+            comps.extend(_load_json_list(path))
+    # dedupe by id
+    by_id = {}
+    for c in comps:
+        by_id[c.get("id")] = c
+    return list(by_id.values())
+
+
 @lru_cache(maxsize=1)
 def _load_all() -> tuple[list[dict], list[dict], list[dict]]:
     base = _catalog_dir()
-    cats = _load_json_list(base / "categories.json")
-    plats = _load_json_list(base / "platforms.json")
-    comps = _load_json_list(base / "components.json")
-    if not comps:
-        comps = _load_json_list(base / "components_part1.json") + _load_json_list(
-            base / "components_part2.json"
-        )
-    return cats, plats, comps
+    return (
+        _load_json_list(base / "categories.json"),
+        _load_json_list(base / "platforms.json"),
+        _load_components(base),
+    )
 
 
 def list_categories() -> list[Category]:
