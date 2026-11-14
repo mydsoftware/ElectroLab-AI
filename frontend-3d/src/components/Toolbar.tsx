@@ -8,6 +8,12 @@ const TOOLS: { type: ComponentType; label: string; icon: string }[] = [
   { type: 'resistor', label: 'مقاومت', icon: 'R' },
   { type: 'led', label: 'LED', icon: '💡' },
   { type: 'capacitor', label: 'خازن', icon: 'C' },
+  { type: 'acsource', label: 'منبع AC', icon: '~' },
+  { type: 'inductor', label: 'سلف', icon: 'L' },
+  { type: 'diode', label: 'دیود', icon: 'D' },
+  { type: 'ground', label: 'زمین', icon: 'GND' },
+  { type: 'button', label: 'دکمه', icon: 'B' },
+  { type: 'potentiometer', label: 'پتانسیومتر', icon: 'P' },
 ]
 
 function createComponent(type: ComponentType) {
@@ -58,6 +64,70 @@ function createComponent(type: ComponentType) {
       ],
     }
   }
+  if (type === 'acsource') {
+    return {
+      id, type: 'acsource' as any, position: holePosition(4, 4),
+      rotation: [0, 0, 0] as [number, number, number],
+      props: { amplitude: 5, frequency: 50, wave: 'sine', ac: true },
+      pins: [
+        { id: 'pos', position: [-0.15, 0.02, 0] as [number, number, number] },
+        { id: 'neg', position: [0.15, 0.02, 0] as [number, number, number] },
+      ],
+    }
+  }
+  if (type === 'inductor') {
+    return {
+      id, type: 'inductor' as any, position,
+      rotation: [0, 0, 0] as [number, number, number],
+      props: { value: '1m' },
+      pins: [
+        { id: 'a', position: [-0.35, 0.05, 0] as [number, number, number] },
+        { id: 'b', position: [0.35, 0.05, 0] as [number, number, number] },
+      ],
+    }
+  }
+  if (type === 'diode') {
+    return {
+      id, type: 'diode' as any, position,
+      rotation: [0, 0, 0] as [number, number, number],
+      props: { vf: 0.7 },
+      pins: [
+        { id: 'a', position: [-0.28, 0.05, 0] as [number, number, number] },
+        { id: 'k', position: [0.28, 0.05, 0] as [number, number, number] },
+      ],
+    }
+  }
+  if (type === 'ground') {
+    return {
+      id, type: 'ground' as any, position: holePosition(8, 8),
+      rotation: [0, 0, 0] as [number, number, number],
+      props: {},
+      pins: [{ id: 'gnd', position: [0, 0.02, 0] as [number, number, number] }],
+    }
+  }
+  if (type === 'button') {
+    return {
+      id, type: 'button' as any, position: holePosition(10, 6),
+      rotation: [0, 0, 0] as [number, number, number],
+      props: { pressed: false, arduinoPin: 2 },
+      pins: [
+        { id: 'a', position: [-0.08, 0.02, 0] as [number, number, number] },
+        { id: 'b', position: [0.08, 0.02, 0] as [number, number, number] },
+      ],
+    }
+  }
+  if (type === 'potentiometer') {
+    return {
+      id, type: 'potentiometer' as any, position: holePosition(16, 6),
+      rotation: [0, 0, 0] as [number, number, number],
+      props: { analogValue: 512, arduinoPin: 14 },
+      pins: [
+        { id: 'a', position: [-0.12, 0.02, 0] as [number, number, number] },
+        { id: 'w', position: [0, 0.02, 0] as [number, number, number] },
+        { id: 'b', position: [0.12, 0.02, 0] as [number, number, number] },
+      ],
+    }
+  }
   return null
 }
 
@@ -99,14 +169,14 @@ export function Toolbar() {
   }
 
   return (
-    <div className="absolute top-4 right-4 z-10 flex flex-col gap-3 max-w-[210px]">
+    <div className="absolute top-4 right-4 z-10 flex flex-col gap-3 max-w-[210px] max-h-[90vh] overflow-y-auto">
       <div className="bg-slate-800/90 backdrop-blur border border-slate-600 rounded-xl p-3 shadow-xl">
         <div className="text-xs text-slate-400 mb-2 text-center">قطعات</div>
         <div className="flex flex-col gap-2">
           {TOOLS.map((tool) => (
             <button key={tool.type} onClick={() => handleAdd(tool.type)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm transition">
-              <span className="w-6 text-center font-bold">{tool.icon}</span>
+              <span className="w-8 text-center font-bold text-xs">{tool.icon}</span>
               <span>{tool.label}</span>
             </button>
           ))}
@@ -130,13 +200,13 @@ export function Toolbar() {
         )}
       </div>
 
-      {selected && (selected.type === 'resistor' || selected.type === 'capacitor') && (
+      {selected && (selected.type === 'resistor' || selected.type === 'capacitor' || selected.type === 'inductor') && (
         <div className="bg-slate-800/90 backdrop-blur border border-slate-600 rounded-xl p-3 shadow-xl">
           <div className="text-xs text-slate-400 mb-1">مقدار قطعه</div>
           <input className="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-600 text-white text-sm"
             value={String(selected.props.value || '')}
             onChange={(e) => updateComponent(selected.id, { props: { ...selected.props, value: e.target.value } })}
-            placeholder={selected.type === 'resistor' ? '1k' : '100n'} />
+            placeholder={selected.type === 'resistor' ? '1k' : selected.type === 'inductor' ? '1m' : '100n'} />
         </div>
       )}
 
