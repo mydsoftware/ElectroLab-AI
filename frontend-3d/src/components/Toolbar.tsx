@@ -14,121 +14,87 @@ const TOOLS: { type: ComponentType; label: string; icon: string }[] = [
   { type: 'ground', label: 'زمین', icon: 'GND' },
   { type: 'button', label: 'دکمه', icon: 'B' },
   { type: 'potentiometer', label: 'پتانسیومتر', icon: 'P' },
+  { type: 'transistor', label: 'ترانزیستور', icon: 'Q' },
+]
+
+const BOARDS: { key: string; label: string; catalogId: string; accent: string }[] = [
+  { key: 'arduino', label: 'Arduino Uno', catalogId: 'board-arduino-uno', accent: '#00979d' },
+  { key: 'esp32', label: 'ESP32', catalogId: 'board-esp32-devkit', accent: '#1e40af' },
+  { key: 'pico', label: 'Pi Pico', catalogId: 'board-pico', accent: '#16a34a' },
+  { key: 'stm32', label: 'STM32', catalogId: 'board-stm32-bluepill', accent: '#0ea5e9' },
 ]
 
 function createComponent(type: ComponentType) {
   const id = `${type}-${Date.now()}`
   const position = holePosition(14, 4)
-
   if (type === 'resistor') {
-    return {
-      id, type, position,
-      rotation: [0, 0, 0] as [number, number, number],
-      props: { value: '1k' },
-      pins: [
-        { id: 'a', position: [-0.35, 0.05, 0] as [number, number, number] },
-        { id: 'b', position: [0.35, 0.05, 0] as [number, number, number] },
-      ],
-    }
+    return { id, type, position, rotation: [0,0,0] as [number,number,number], props: { value: '1k' },
+      pins: [{ id: 'a', position: [-0.35,0.05,0] as [number,number,number] }, { id: 'b', position: [0.35,0.05,0] as [number,number,number] }] }
   }
   if (type === 'led') {
-    return {
-      id, type, position,
-      rotation: [0, 0, 0] as [number, number, number],
-      props: { color: '#e74c3c', lit: false },
-      pins: [
-        { id: 'anode', position: [0.05, -0.05, 0] as [number, number, number] },
-        { id: 'cathode', position: [-0.05, 0, 0] as [number, number, number] },
-      ],
-    }
+    return { id, type, position, rotation: [0,0,0] as [number,number,number], props: { color: '#e74c3c', lit: false },
+      pins: [{ id: 'anode', position: [0.05,-0.05,0] as [number,number,number] }, { id: 'cathode', position: [-0.05,0,0] as [number,number,number] }] }
   }
   if (type === 'power') {
-    return {
-      id, type, position: holePosition(2, 2),
-      rotation: [0, 0, 0] as [number, number, number],
-      props: { voltage: 5 },
-      pins: [
-        { id: 'pos', position: [-0.15, 0.02, 0] as [number, number, number] },
-        { id: 'neg', position: [0.15, 0.02, 0] as [number, number, number] },
-      ],
-    }
+    return { id, type, position: holePosition(2, 2), rotation: [0,0,0] as [number,number,number], props: { voltage: 5 },
+      pins: [{ id: 'pos', position: [-0.15,0.02,0] as [number,number,number] }, { id: 'neg', position: [0.15,0.02,0] as [number,number,number] }] }
   }
   if (type === 'capacitor') {
-    return {
-      id, type, position,
-      rotation: [0, 0, 0] as [number, number, number],
-      props: { value: '100n' },
-      pins: [
-        { id: 'a', position: [-0.2, 0.05, 0] as [number, number, number] },
-        { id: 'b', position: [0.2, 0.05, 0] as [number, number, number] },
-      ],
-    }
+    return { id, type, position, rotation: [0,0,0] as [number,number,number], props: { value: '100n' },
+      pins: [{ id: 'a', position: [-0.2,0.05,0] as [number,number,number] }, { id: 'b', position: [0.2,0.05,0] as [number,number,number] }] }
   }
   if (type === 'acsource') {
-    return {
-      id, type: 'acsource' as any, position: holePosition(4, 4),
-      rotation: [0, 0, 0] as [number, number, number],
+    return { id, type: 'acsource' as any, position: holePosition(4, 4), rotation: [0,0,0] as [number,number,number],
       props: { amplitude: 5, frequency: 50, wave: 'sine', ac: true },
-      pins: [
-        { id: 'pos', position: [-0.15, 0.02, 0] as [number, number, number] },
-        { id: 'neg', position: [0.15, 0.02, 0] as [number, number, number] },
-      ],
-    }
+      pins: [{ id: 'pos', position: [-0.15,0.02,0] as [number,number,number] }, { id: 'neg', position: [0.15,0.02,0] as [number,number,number] }] }
   }
   if (type === 'inductor') {
-    return {
-      id, type: 'inductor' as any, position,
-      rotation: [0, 0, 0] as [number, number, number],
-      props: { value: '1m' },
-      pins: [
-        { id: 'a', position: [-0.35, 0.05, 0] as [number, number, number] },
-        { id: 'b', position: [0.35, 0.05, 0] as [number, number, number] },
-      ],
-    }
+    return { id, type: 'inductor' as any, position, rotation: [0,0,0] as [number,number,number], props: { value: '1m' },
+      pins: [{ id: 'a', position: [-0.35,0.05,0] as [number,number,number] }, { id: 'b', position: [0.35,0.05,0] as [number,number,number] }] }
   }
   if (type === 'diode') {
-    return {
-      id, type: 'diode' as any, position,
-      rotation: [0, 0, 0] as [number, number, number],
-      props: { vf: 0.7 },
-      pins: [
-        { id: 'a', position: [-0.28, 0.05, 0] as [number, number, number] },
-        { id: 'k', position: [0.28, 0.05, 0] as [number, number, number] },
-      ],
-    }
+    return { id, type: 'diode' as any, position, rotation: [0,0,0] as [number,number,number], props: { vf: 0.7 },
+      pins: [{ id: 'a', position: [-0.28,0.05,0] as [number,number,number] }, { id: 'k', position: [0.28,0.05,0] as [number,number,number] }] }
   }
   if (type === 'ground') {
-    return {
-      id, type: 'ground' as any, position: holePosition(8, 8),
-      rotation: [0, 0, 0] as [number, number, number],
-      props: {},
-      pins: [{ id: 'gnd', position: [0, 0.02, 0] as [number, number, number] }],
-    }
+    return { id, type: 'ground' as any, position: holePosition(8, 8), rotation: [0,0,0] as [number,number,number], props: {},
+      pins: [{ id: 'gnd', position: [0,0.02,0] as [number,number,number] }] }
   }
   if (type === 'button') {
-    return {
-      id, type: 'button' as any, position: holePosition(10, 6),
-      rotation: [0, 0, 0] as [number, number, number],
+    return { id, type: 'button' as any, position: holePosition(10, 6), rotation: [0,0,0] as [number,number,number],
       props: { pressed: false, arduinoPin: 2 },
-      pins: [
-        { id: 'a', position: [-0.08, 0.02, 0] as [number, number, number] },
-        { id: 'b', position: [0.08, 0.02, 0] as [number, number, number] },
-      ],
-    }
+      pins: [{ id: 'a', position: [-0.08,0.02,0] as [number,number,number] }, { id: 'b', position: [0.08,0.02,0] as [number,number,number] }] }
   }
   if (type === 'potentiometer') {
-    return {
-      id, type: 'potentiometer' as any, position: holePosition(16, 6),
-      rotation: [0, 0, 0] as [number, number, number],
+    return { id, type: 'potentiometer' as any, position: holePosition(16, 6), rotation: [0,0,0] as [number,number,number],
       props: { analogValue: 512, arduinoPin: 14 },
+      pins: [{ id: 'a', position: [-0.12,0.02,0] as [number,number,number] }, { id: 'w', position: [0,0.02,0] as [number,number,number] }, { id: 'b', position: [0.12,0.02,0] as [number,number,number] }] }
+  }
+  if (type === 'transistor') {
+    return { id, type: 'transistor' as any, position, rotation: [0,0,0] as [number,number,number], props: { kind: 'NPN' },
       pins: [
-        { id: 'a', position: [-0.12, 0.02, 0] as [number, number, number] },
-        { id: 'w', position: [0, 0.02, 0] as [number, number, number] },
-        { id: 'b', position: [0.12, 0.02, 0] as [number, number, number] },
-      ],
-    }
+        { id: 'b', position: [-0.08,0.02,0.08] as [number,number,number] },
+        { id: 'c', position: [0,0.02,0.08] as [number,number,number] },
+        { id: 'e', position: [0.08,0.02,0.08] as [number,number,number] },
+      ] }
   }
   return null
+}
+
+function createBoard(b: (typeof BOARDS)[0]) {
+  return {
+    id: `module-${b.key}-${Date.now()}`,
+    type: 'module' as const,
+    position: holePosition(5, 8),
+    rotation: [0, 0, 0] as [number, number, number],
+    catalogId: b.catalogId,
+    label: b.label,
+    props: { label: b.label, accent: b.accent },
+    pins: [
+      { id: '1', position: [-0.25, 0, -0.22] as [number, number, number] },
+      { id: '2', position: [0.25, 0, -0.22] as [number, number, number] },
+    ],
+  }
 }
 
 export function Toolbar() {
@@ -157,22 +123,11 @@ export function Toolbar() {
     }
   }
 
-  const downloadNetlist = () => {
-    if (!lastSim?.netlist) return
-    const blob = new Blob([lastSim.netlist], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'electrolab-circuit.cir'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
   return (
-    <div className="absolute top-4 right-4 z-10 flex flex-col gap-3 max-w-[210px] max-h-[90vh] overflow-y-auto">
+    <div className="absolute top-4 right-4 z-10 flex flex-col gap-3 max-w-[220px] max-h-[90vh] overflow-y-auto">
       <div className="bg-slate-800/90 backdrop-blur border border-slate-600 rounded-xl p-3 shadow-xl">
         <div className="text-xs text-slate-400 mb-2 text-center">قطعات</div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           {TOOLS.map((tool) => (
             <button key={tool.type} onClick={() => handleAdd(tool.type)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm transition">
@@ -183,62 +138,56 @@ export function Toolbar() {
         </div>
       </div>
 
+      <div className="bg-slate-800/90 backdrop-blur border border-slate-600 rounded-xl p-3 shadow-xl">
+        <div className="text-xs text-slate-400 mb-2 text-center">بردها / MCU</div>
+        <div className="flex flex-col gap-1.5">
+          {BOARDS.map((b) => (
+            <button key={b.key} onClick={() => { setMode('select'); addComponent(createBoard(b) as any) }}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm transition">
+              <span className="w-2 h-2 rounded-full" style={{ background: b.accent }} />
+              <span>{b.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="bg-slate-800/90 backdrop-blur border border-slate-600 rounded-xl p-3 shadow-xl flex flex-col gap-2">
         <div className="text-xs text-slate-400 text-center mb-1">حالت</div>
         <button onClick={() => setMode('select')}
-          className={`px-3 py-2 rounded-lg text-sm transition ${mode === 'select' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}>
-          انتخاب / جابه‌جایی
-        </button>
+          className={`px-3 py-2 rounded-lg text-sm transition ${mode === 'select' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}>انتخاب</button>
         <button onClick={() => setMode('wire')}
-          className={`px-3 py-2 rounded-lg text-sm transition ${mode === 'wire' ? 'bg-amber-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}>
-          سیم‌کشی
-        </button>
+          className={`px-3 py-2 rounded-lg text-sm transition ${mode === 'wire' ? 'bg-amber-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-white'}`}>سیم‌کشی</button>
         {mode === 'wire' && (
-          <div className="text-[11px] text-amber-200/90 leading-relaxed">
-            {wireStartHoleId ? 'حالا سوراخ دوم را کلیک کنید' : 'روی یک سوراخ کلیک کنید تا سیم شروع شود'}
-          </div>
+          <div className="text-[11px] text-amber-200/90">{wireStartHoleId ? 'سوراخ دوم' : 'سوراخ اول'}</div>
         )}
       </div>
 
       {selected && (selected.type === 'resistor' || selected.type === 'capacitor' || selected.type === 'inductor') && (
-        <div className="bg-slate-800/90 backdrop-blur border border-slate-600 rounded-xl p-3 shadow-xl">
-          <div className="text-xs text-slate-400 mb-1">مقدار قطعه</div>
+        <div className="bg-slate-800/90 border border-slate-600 rounded-xl p-3">
+          <div className="text-xs text-slate-400 mb-1">مقدار</div>
           <input className="w-full px-2 py-1.5 rounded bg-slate-900 border border-slate-600 text-white text-sm"
             value={String(selected.props.value || '')}
-            onChange={(e) => updateComponent(selected.id, { props: { ...selected.props, value: e.target.value } })}
-            placeholder={selected.type === 'resistor' ? '1k' : selected.type === 'inductor' ? '1m' : '100n'} />
+            onChange={(e) => updateComponent(selected.id, { props: { ...selected.props, value: e.target.value } })} />
         </div>
       )}
 
-      <div className="bg-slate-800/90 backdrop-blur border border-slate-600 rounded-xl p-3 shadow-xl flex flex-col gap-2">
+      <div className="bg-slate-800/90 border border-slate-600 rounded-xl p-3 flex flex-col gap-2">
         <button onClick={handleSimulate} disabled={simulating || components.length === 0}
-          className="px-3 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium transition">
-          {simulating ? 'در حال شبیه‌سازی…' : '▶ شبیه‌سازی / تست'}
+          className="px-3 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-sm font-medium">
+          {simulating ? 'شبیه‌سازی…' : '▶ شبیه‌سازی'}
         </button>
-        <button onClick={rotateSelected} disabled={!selectedId}
-          className="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm transition">چرخش ۹۰°</button>
+        <button onClick={rotateSelected} disabled={!selectedId} className="px-3 py-2 rounded-lg bg-slate-700 text-white text-sm disabled:opacity-40">چرخش ۹۰°</button>
         <button onClick={() => selectedId && removeComponent(selectedId)} disabled={!selectedId}
-          className="px-3 py-2 rounded-lg bg-red-700/80 hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm transition">حذف انتخاب‌شده</button>
-        <button onClick={loadDemo}
-          className="px-3 py-2 rounded-lg bg-indigo-700/80 hover:bg-indigo-600 text-white text-sm transition">بارگذاری مدار نمونه</button>
-        <button onClick={clearAll} disabled={components.length === 0 && wires.length === 0}
-          className="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm transition">پاک کردن همه</button>
+          className="px-3 py-2 rounded-lg bg-red-700/80 text-white text-sm disabled:opacity-40">حذف</button>
+        <button onClick={loadDemo} className="px-3 py-2 rounded-lg bg-indigo-700 text-white text-sm">مدار نمونه</button>
+        <button onClick={clearAll} disabled={!components.length && !wires.length}
+          className="px-3 py-2 rounded-lg bg-slate-700 text-white text-sm disabled:opacity-40">پاک کردن</button>
       </div>
 
-      <div className="bg-slate-800/80 backdrop-blur border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300">
+      <div className="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-300">
         <div className="flex justify-between"><span>{components.length} قطعه</span><span>{wires.length} سیم</span></div>
-        {lastSim && (
-          <div className={`mt-2 text-[11px] leading-relaxed ${lastSim.ok ? 'text-emerald-300' : 'text-red-300'}`}>{lastSim.message}</div>
-        )}
+        {lastSim && <div className={`mt-2 text-[11px] ${lastSim.ok ? 'text-emerald-300' : 'text-red-300'}`}>{lastSim.message}</div>}
       </div>
-
-      {lastSim?.netlist && (
-        <details className="bg-slate-900/80 border border-slate-700 rounded-lg text-[10px] text-slate-400">
-          <summary className="px-3 py-2 cursor-pointer hover:text-slate-200">نت‌لیست SPICE</summary>
-          <pre className="px-3 pb-2 overflow-auto max-h-40 whitespace-pre-wrap dir-ltr text-left">{lastSim.netlist}</pre>
-          <button onClick={downloadNetlist} className="mx-3 mb-2 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-[11px]">دانلود .cir</button>
-        </details>
-      )}
     </div>
   )
 }
