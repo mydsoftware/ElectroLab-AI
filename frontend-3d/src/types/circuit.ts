@@ -8,6 +8,13 @@ export type ComponentType =
   | 'sensor'
   | 'module'
   | 'display'
+  | 'instrument'
+  | 'acsource'
+  | 'inductor'
+  | 'button'
+  | 'potentiometer'
+  | 'diode'
+  | 'ground'
 
 export interface Pin {
   id: string
@@ -45,7 +52,7 @@ export interface BreadboardHole {
   netId: string
 }
 
-export type AppMode = 'select' | 'wire'
+export type AppMode = 'select' | 'wire' | 'probe'
 
 export interface SimResult {
   ok: boolean
@@ -56,6 +63,12 @@ export interface SimResult {
   fromBackend?: boolean
 }
 
+export interface ScopeData {
+  t: number[]
+  series: { name: string; y: number[] }[]
+  message: string
+}
+
 export interface CircuitState {
   components: PlacedComponent[]
   wires: Wire[]
@@ -64,4 +77,10 @@ export interface CircuitState {
   wireStartHoleId: string | null
   simulating: boolean
   lastSim: SimResult | null
+  scopeData: ScopeData | null
+  scopeCh1: string | null
+  scopeCh2: string | null
+  probeAssign: 'ch1' | 'ch2'
+  mcuAssignPin: number | null
+  pinHoverLabel: string | null
 }
