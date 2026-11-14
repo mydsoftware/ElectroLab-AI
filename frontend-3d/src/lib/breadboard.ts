@@ -1,8 +1,3 @@
-/**
- * Breadboard geometry helpers
- * Standard half-size breadboard: 30 columns × 10 rows (a-j) + power rails
- */
-
 export const HOLE_SPACING = 0.254
 export const BOARD_COLS = 30
 export const BOARD_ROWS = 10
@@ -53,9 +48,5 @@ export function snapToNearestHole(
     }
   }
   if (!best) return null
-  return {
-    col: best.col,
-    row: best.row,
-    position: holePosition(best.col, best.row),
-  }
+  return { col: best.col, row: best.row, position: holePosition(best.col, best.row) }
 }

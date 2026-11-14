@@ -16,7 +16,7 @@ export function autosave(
     })
     localStorage.setItem(KEY, JSON.stringify(proj))
   } catch {
-    /* ignore */
+    /* ignore quota */
   }
 }
 
