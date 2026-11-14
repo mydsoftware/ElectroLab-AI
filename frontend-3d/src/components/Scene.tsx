@@ -5,6 +5,12 @@ import { Resistor } from './components/Resistor'
 import { LED } from './components/LED'
 import { Power } from './components/Power'
 import { Capacitor } from './components/Capacitor'
+import { ACSource } from './components/ACSource'
+import { Inductor } from './components/Inductor'
+import { Diode3D } from './components/Diode'
+import { GroundSymbol } from './components/Ground'
+import { PushButton } from './components/PushButton'
+import { Potentiometer } from './components/Potentiometer'
 import { Draggable } from './Draggable'
 import { Wires } from './Wires'
 import { HolePickers } from './HolePickers'
@@ -19,27 +25,30 @@ function CircuitComponents() {
       {components.map((comp) => {
         const isSelected = selectedId === comp.id
         const content = (() => {
-          if (comp.type === 'resistor') {
-            return (
-              <Resistor position={[0, 0, 0]} rotation={comp.rotation} value={String(comp.props.value || '1k')} selected={isSelected} />
-            )
+          switch (comp.type) {
+            case 'resistor':
+              return <Resistor position={[0, 0, 0]} rotation={comp.rotation} value={String(comp.props.value || '1k')} selected={isSelected} />
+            case 'led':
+              return <LED position={[0, 0, 0]} rotation={comp.rotation} color={String(comp.props.color || '#e74c3c')} lit={Boolean(comp.props.lit)} selected={isSelected} />
+            case 'power':
+              return <Power position={[0, 0, 0]} rotation={comp.rotation} voltage={Number(comp.props.voltage || 5)} selected={isSelected} />
+            case 'capacitor':
+              return <Capacitor position={[0, 0, 0]} rotation={comp.rotation} value={String(comp.props.value || '100n')} selected={isSelected} />
+            case 'acsource':
+              return <ACSource position={[0, 0, 0]} rotation={comp.rotation} selected={isSelected} amplitude={Number(comp.props.amplitude || 5)} />
+            case 'inductor':
+              return <Inductor position={[0, 0, 0]} rotation={comp.rotation} selected={isSelected} value={String(comp.props.value || '1m')} />
+            case 'diode':
+              return <Diode3D position={[0, 0, 0]} rotation={comp.rotation} selected={isSelected} />
+            case 'ground':
+              return <GroundSymbol position={[0, 0, 0]} rotation={comp.rotation} selected={isSelected} />
+            case 'button':
+              return <PushButton position={[0, 0, 0]} rotation={comp.rotation} selected={isSelected} pressed={Boolean(comp.props.pressed)} />
+            case 'potentiometer':
+              return <Potentiometer position={[0, 0, 0]} rotation={comp.rotation} selected={isSelected} value={Number(comp.props.analogValue ?? 512)} />
+            default:
+              return null
           }
-          if (comp.type === 'led') {
-            return (
-              <LED position={[0, 0, 0]} rotation={comp.rotation} color={String(comp.props.color || '#e74c3c')} lit={Boolean(comp.props.lit)} selected={isSelected} />
-            )
-          }
-          if (comp.type === 'power') {
-            return (
-              <Power position={[0, 0, 0]} rotation={comp.rotation} voltage={Number(comp.props.voltage || 5)} selected={isSelected} />
-            )
-          }
-          if (comp.type === 'capacitor') {
-            return (
-              <Capacitor position={[0, 0, 0]} rotation={comp.rotation} value={String(comp.props.value || '100n')} selected={isSelected} />
-            )
-          }
-          return null
         })()
 
         if (mode === 'wire') {
@@ -69,7 +78,7 @@ export function Scene() {
       <Canvas shadows camera={{ position: [4, 5, 6], fov: 45 }} onPointerMissed={() => { if (mode === 'select') select(null) }}>
         <color attach="background" args={['#0f172a']} />
         <ambientLight intensity={0.45} />
-        <directionalLight position={[5, 8, 5]} intensity={1.1} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-far={20} shadow-camera-left={-6} shadow-camera-right={6} shadow-camera-top={6} shadow-camera-bottom={-6} />
+        <directionalLight position={[5, 8, 5]} intensity={1.1} castShadow shadow-mapSize={[2048, 2048]} />
         <directionalLight position={[-3, 4, -2]} intensity={0.3} />
         <Suspense fallback={null}>
           <Breadboard />

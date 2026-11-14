@@ -4,12 +4,7 @@ interface Props {
   selected?: boolean
   value?: string
 }
-
-export function Inductor({
-  position,
-  rotation = [0, 0, 0],
-  selected = false,
-}: Props) {
+export function Inductor({ position, rotation = [0, 0, 0], selected = false }: Props) {
   const body = selected ? '#f1c40f' : '#64748b'
   return (
     <group position={position} rotation={rotation}>
@@ -19,14 +14,8 @@ export function Inductor({
           <meshStandardMaterial color={body} metalness={0.5} roughness={0.35} />
         </mesh>
       ))}
-      <mesh position={[-0.35, 0.05, 0]} castShadow>
-        <cylinderGeometry args={[0.015, 0.015, 0.2, 8]} />
-        <meshStandardMaterial color="#c0c0c0" metalness={0.8} />
-      </mesh>
-      <mesh position={[0.35, 0.05, 0]} castShadow>
-        <cylinderGeometry args={[0.015, 0.015, 0.2, 8]} />
-        <meshStandardMaterial color="#c0c0c0" metalness={0.8} />
-      </mesh>
+      <mesh position={[-0.35, 0.05, 0]}><cylinderGeometry args={[0.015, 0.015, 0.2, 8]} /><meshStandardMaterial color="#c0c0c0" metalness={0.8} /></mesh>
+      <mesh position={[0.35, 0.05, 0]}><cylinderGeometry args={[0.015, 0.015, 0.2, 8]} /><meshStandardMaterial color="#c0c0c0" metalness={0.8} /></mesh>
     </group>
   )
 }
